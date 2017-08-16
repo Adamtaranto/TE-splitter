@@ -38,7 +38,7 @@ def dochecks(args):
 	else:
 		prefix = args.prefix
 	# Create outfile paths
-	outfile = prefix + "_exterm_extracted.fasta"
+	outfile = prefix + "_exterminate_output.fasta"
 	outpath = os.path.join(outDir,outfile)
 	# Return full path to output file and temp directory
 	return outpath,tempDir
@@ -236,7 +236,7 @@ def mainArgs():
 	parser = argparse.ArgumentParser(
 							description	=	'Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). \
 											Optionally, compose synthetic MITES from complete DNA transposons.',
-							prog		=	'TE-exterminate'
+							prog		=	'exterminate'
 							)
 	parser.add_argument('-i', '--infile',
 							type		=	str,
@@ -280,7 +280,7 @@ def mainArgs():
 	parser.add_argument('-m', '--maxdist',
 							type	=	int,
 							default	=	10,
-							help	=	'Terminal repeat candidates must be no more than this many bases from end of input element. \
+							help	=	'Terminal repeat candidates must be no more than this many bases from end of input element. (Default: 10)\
 										Note: Increase this value if you suspect that your element is nested within some flanking sequence.'
 							)
 	parser.add_argument('--minid',
@@ -293,12 +293,13 @@ def mainArgs():
 							type	=	int,
 							default	=	10,
 							help	=	'Minimum length for a terminal repeat to be considered. \
-										Equivalent to nucmer "--mincluster" '
+										Equivalent to nucmer "--mincluster" \
+										(Default: 10)'
 							)
 	parser.add_argument('--minseed',
 							type	=	int,
 							default	=	5,
-							help	=	'Minimum length of an maximal exact match to be included in final match cluster. \
+							help	=	'Minimum length of a maximal exact match to be included in final match cluster. \
 										Equivalent to nucmer "--minmatch". \
 										(Default: 5)'
 							)
