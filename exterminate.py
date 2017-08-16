@@ -134,15 +134,17 @@ def getLTRs(elements=None, flankdist=10, minid=80, minterm=10, minseed=5, diagfa
 				yield rec
 			if report in ['split','external']:
 				# yield LTR slice - append "_LTR"
-				extSeg = rec[alignments[0].ref_start:alignments[0].ref_end]
+				extSeg = rec[alignments[0].ref_start:alignments[0].ref_end + 1]
 				extSeg.id = extSeg.id + "_LTR"
 				extSeg.name = extSeg.id
+				extSeg.description = "[" + rec.id + " LTR segment]"
 				yield extSeg
 			if report in ['split','internal']:
 				# yield internal slice - append "_I"
-				intSeg = rec[alignments[0].ref_end:alignments[0].qry_start] 
+				intSeg = rec[alignments[0].ref_end:alignments[0].qry_start + 1] 
 				intSeg.id = intSeg.id + "_I"
 				intSeg.name = intSeg.id
+				intSeg.description = "[" + rec.id + " internal segment]"
 				yield intSeg
 		else:
 			# If alignment list empty after filtering print alert and continue
@@ -171,7 +173,7 @@ def getTIRs(elements=None, flankdist=10, minid=80, minterm=10, minseed=5, diagfa
 								min_id		=	minid,
 								min_length	=	minseed,
 								diagfactor	=	diagfactor,
-								incluster	=	minterm,
+								mincluster	=	minterm,
 								breaklen	=	200,
 								maxmatch	=	True,
 								simplify	=	False
@@ -198,22 +200,24 @@ def getTIRs(elements=None, flankdist=10, minid=80, minterm=10, minseed=5, diagfa
 				yield rec
 			if report in ['split','external']:
 				# yield TIR slice - append "_TIR"
-				extSeg = rec[alignments[0].ref_start:alignments[0].ref_end]
+				extSeg = rec[alignments[0].ref_start:alignments[0].ref_end + 1]
 				extSeg.id = extSeg.id + "_TIR"
 				extSeg.name = extSeg.id
+				extSeg.description = "[" + rec.id + " TIR segment]"
 				yield extSeg
 			if report in ['split','internal']:
 				# yield internal slice - append "_I"
-				intSeg = rec[alignments[0].ref_end:alignments[0].qry_end]
+				intSeg = rec[alignments[0].ref_end:alignments[0].qry_end + 1]
 				intSeg.id = intSeg.id + "_I"
 				intSeg.name = intSeg.id
+				intSeg.description = "[" + rec.id + " internal segment]"
 				yield intSeg
 			if mites:
 				# Assemble TIRs into hypothetical MITEs
-				synMITE = rec[alignments[0].ref_start:alignments[0].ref_end] + rec[alignments[0].qry_end:alignments[0].qry_start]
+				synMITE = rec[alignments[0].ref_start:alignments[0].ref_end + 1] + rec[alignments[0].qry_end:alignments[0].qry_start + 1]
 				synMITE.id = synMITE.id + "_synMITE"
 				synMITE.name = synMITE.id
-				synMITE.description = "Synthetic MITE constructed from " + rec.id
+				synMITE.description = "[Synthetic MITE constructed from " + rec.id + " TIRs]"
 				yield synMITE
 		else:
 			# If alignment list empty after filtering print alert and continue
