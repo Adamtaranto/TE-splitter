@@ -14,6 +14,21 @@ Pull request pending to update oficial [pymummer](https://github.com/sanger-path
     * [Example usage](#example-usage)
     * [Standard options](#standard-options)
 
+* [Algorithm overview](#algorithm-overview)
+
+# Algorithm overview
+
+Exterminate attempts to identify terminal repeats in transposeable elements by first aligning 
+each element to itself using nucmer, and then apply a set of tuneable heuristics to select 
+an alignment pair most likely to represent an LTR or TIR.  
+
+  1. Exclude all diagonal/self matches 
+  2. If LTR mode: Retain only alignment pairs on the same strand (tandem repeats)
+  3. If TIR mode: Retain only alignment pairs on opposite strands (inverse repeats)
+  4. Retain pairs for which the 5' match begins within x bases of element start
+     and whose 3' match ends within x bases of element end
+  5. Exclude alignment pairs which overlap (potential SSRs)
+  6. If multiple candidates remain select alignment pair with largest internal segment (i.e. closest to element ends)
 
 # Options and usage  
 
@@ -62,7 +77,7 @@ Report settings:
                                       internal = Report only internal segments.  
                                       external = Report only terminal repeat segments.  
                                       None = Only report synthetic MITES (when --makemites is also set).  
-  --makemites                       Attempt to construct synthetic MITE sequences from TIRs.  
+  --makemites                       Attempt to construct synthetic MITE sequences from TIRs by concatenating 5' and 3' TIRs.  
 
 
 Alignment settings:
