@@ -21,6 +21,9 @@ from pymummer import coords_file, alignment, nucmer
 
 def dochecks(args):
 	"""Housekeeping tasks: Create output files/dirs and temp dirs as required."""
+	if not os.path.isfile(args.infile):
+		print("Input sequence file does not exist. Quitting.")
+		sys.exit(1)
 	# Make outDir if does not exist else set to current dir.
 	if args.outdir:
 		absOutDir = os.path.abspath(args.outdir)
@@ -184,6 +187,8 @@ def getTIRs(elements=None, flankdist=10, minid=80, minterm=10, minseed=5, diagfa
 		file_reader = coords_file.reader(tempCoords)
 		# Exclude hits to self. Also converts iterator output to stable list
 		alignments = [hit for hit in file_reader if not hit.is_self_hit()]
+		print(rec)
+		[print(x) for x in alignments]
 		# Filter for hits on same strand i.e. tandem repeats / LTRs
 		alignments = [hit for hit in alignments if not hit.on_same_strand()]
 		# Filter for 5' repeats which begin within x bases of element start
@@ -228,13 +233,14 @@ def getTIRs(elements=None, flankdist=10, minid=80, minterm=10, minseed=5, diagfa
 
 def segWrite(outfile,segs=None):
 	"""Take a generator object yielding seqrecords and write each to outfile in fasta format."""
+	seqcount = 0
 	if segs:
 		with open(outfile, "w") as handle:
 			for seq in segs:
+				seqcount += 1
 				SeqIO.write(seq, handle, "fasta")
-	else:
-		print('No extracted segments to write. Finishing.')
-		pass
+		if seqcount == 0:
+			os.remove(outfile)
 
 def mainArgs():
 	parser = argparse.ArgumentParser(

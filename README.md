@@ -4,8 +4,7 @@ Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs).
 Optionally, compose synthetic MITES from complete DNA transposons.  
 
 
-Currently requires [custom pymummer version](https://github.com/Adamtaranto/pymummer) with wrapper for nucmer option *--diagfactor*.
-Pull request pending to update oficial [pymummer](https://github.com/sanger-pathogens/pymummer/pull/28)
+Requires [pymummer](https://pypi.python.org/pypi/pymummer) version >= 0.10.3 with wrapper for nucmer option *--diagfactor*.
 
 
 # Table of contents
@@ -19,7 +18,7 @@ Pull request pending to update oficial [pymummer](https://github.com/sanger-path
 # Algorithm overview
 
 Exterminate attempts to identify terminal repeats in transposeable elements by first aligning 
-each element to itself using nucmer, and then apply a set of tuneable heuristics to select 
+each element to itself using nucmer, and then applying a set of tuneable heuristics to select 
 an alignment pair most likely to represent an LTR or TIR.  
 
   1. Exclude all diagonal/self matches 
