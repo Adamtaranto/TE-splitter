@@ -3,17 +3,13 @@
 Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). 
 Optionally, compose synthetic MITES from complete DNA transposons.  
 
-
-Requires [pymummer](https://pypi.python.org/pypi/pymummer) version >= 0.10.3 with wrapper for nucmer option *--diagfactor*.
-
-
 # Table of contents
 
+* [Algorithm overview](#algorithm-overview)
 * [Options and usage](#options-and-usage)
+    * [Installing Exterminate](#installing-exterminate)
     * [Example usage](#example-usage)
     * [Standard options](#standard-options)
-
-* [Algorithm overview](#algorithm-overview)
 
 # Algorithm overview
 
@@ -31,27 +27,44 @@ an alignment pair most likely to represent an LTR or TIR.
 
 # Options and usage  
 
+### Installing Exterminate
+
+Requirements: 
+  * [pymummer](https://pypi.python.org/pypi/pymummer) version >= 0.10.3 with wrapper for nucmer option *--diagfactor*.
+  * [MUMmer](http://mummer.sourceforge.net/)
+  * [BLAST+](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/) (Optional)
+
+Install from PyPi:
+```
+pip install exterminate
+```
+
+Clone and install from this repository:
+```
+git clone https://github.com/Adamtaranto/TE-exterminate.git && cd TE-exterminate && pip install -e .
+```
+
 ### Example usage  
 
 For each element in *retroelements.fasta* split into internal and external segments. 
 Split segments will be written to *LTR_split_exterminate_output.fasta* with suffix "_I" for internal or "_LTR" for external segments.
-LTRs must be at least 10bp in length and share 80% identity and occur within 10bp of each end of the input element
+LTRs must be at least 10bp in length and share 80% identity and occur within 10bp of each end of the input element.
 
 `
-./exterminate.py -i retroelements.fasta -p LTR_split --findmode LTR 
+exterminate -i retroelements.fasta -p LTR_split --findmode LTR 
 `
 
 ### Standard options
 
-Run `./exterminate.py --help` to view the program's most commonly used options:
+Run `exterminate --help` to view the program's most commonly used options:
 
 ```
-usage: ./exterminate.py [-h] -i INFILE [-p PREFIX] [-d OUTDIR]
+usage: exterminate [-h] -i INFILE [-p PREFIX] [-d OUTDIR]
                         [--findmode {LTR,TIR}]
                         [--splitmode {all,split,internal,external,None}]
-                        [--makemites] [-m MAXDIST] [--minid MINID]
-                        [--minterm MINTERM] [--minseed MINSEED]
-                        [--diagfactor DIAGFACTOR]  
+                        [--makemites] [--keeptemp] [-v] [-m MAXDIST]
+                        [--minid MINID] [--minterm MINTERM] [--minseed MINSEED]
+                        [--diagfactor DIAGFACTOR] [--method {blastn,nucmer}]
 
 
 Help:
@@ -65,6 +78,8 @@ Input:
 Output:
   -p PREFIX, --prefix PREFIX        All output files begin with this string.  (Default:[infile basename])  
   -d OUTDIR, --outdir OUTDIR        Write output files to this directory. (Default: cwd)  
+  --keeptemp                        If set do not remove temp directory on completion.
+  -v, --verbose                     If set, report progress.
 
 
 Report settings:
@@ -80,6 +95,9 @@ Report settings:
 
 
 Alignment settings:
+  --method                          Select alignment tool. Note: blastn may perform better on very short high-identity TRs,
+                                    while nucmer is more robust to small indels.
+                                    Options: {blastn,nucmer} (Default: nucmer)
   --minid MINID                     Minimum identity between terminal repeat pairs. As float. (Default: 80.0)  
   --minterm MINTERM                 Minimum length for a terminal repeat to be considered.  
                                       Equivalent to nucmer "--mincluster" (Default: 10)  
