@@ -24,7 +24,7 @@ Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs).
 setup(name='exterminate',
       version='0.1.0',
       description=desc,
-      url='https://github.com/Adamtaranto/exterminate',
+      url='https://github.com/Adamtaranto/TE-exterminate',
       author='Adam Taranto',
       author_email='adam.taranto@anu.edu.au',
       license='MIT',
