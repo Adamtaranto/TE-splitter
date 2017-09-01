@@ -14,7 +14,7 @@ import re
 import sys
 import shutil
 import argparse
-import .runBlastn 
+from .runBlastn import makeBlast, run_blast
 from Bio import SeqIO
 from datetime import datetime
 from collections import Counter
@@ -119,8 +119,8 @@ def getLTRs(elements=None, flankdist=10, minid=80, minterm=10, minseed=5, diagfa
 			runner.run()
 		elif alignTool == 'blastn':
 			# Alternatively, use blastn as search tool and write nucmer.coords-like output.
-			cmds = runBlastn.makeBlast(seq=tempFasta, outfile=tempCoords, pid=minid)
-			runBlastn.run_cmd(cmds, verbose=verbose)
+			cmds = makeBlast(seq=tempFasta, outfile=tempCoords, pid=minid)
+			run_blast(cmds, verbose=verbose)
 		# Import coords file to iterator object
 		file_reader = coords_file.reader(tempCoords)
 		# Exclude hits to self. Also converts iterator output to stable list
@@ -199,8 +199,8 @@ def getTIRs(elements=None, flankdist=10, minid=80, minterm=10, minseed=5, diagfa
 			runner.run()
 		elif alignTool == 'blastn':
 			# Alternatively, use blastn as search tool and write nucmer.coords-like output.
-			cmds = runBlastn.makeBlast(seq=tempFasta, outfile=tempCoords, pid=minid)
-			runBlastn.run_cmd(cmds,verbose=verbose)
+			cmds = makeBlast(seq=tempFasta, outfile=tempCoords, pid=minid)
+			run_blast(cmds,verbose=verbose)
 		# Import coords file to iterator object
 		file_reader = coords_file.reader(tempCoords)
 		# Exclude hits to self. Also converts iterator output to stable list

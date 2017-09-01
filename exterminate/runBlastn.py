@@ -39,7 +39,7 @@ def makeBlast(seq=None, outfile=None, pid=60):
 	cmd = 'blastn -word_size 4 -outfmt "6 qstart qend sstart send length positive pident qlen slen qframe sframe qseqid sseqid" -query ' + str(seq) + ' -subject ' + str(seq) + ' -out ' + str(outfile) + ' -perc_identity ' + str(pid)
 	return [cmd]
 
-def run_cmd(cmds,verbose=False):
+def run_blast(cmds,verbose=False):
 	'''Write and excute HMMER script'''
 	tmpdir = tempfile.mkdtemp(prefix='tmp.', dir=os.getcwd())
 	original_dir = os.getcwd()
