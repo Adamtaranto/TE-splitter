@@ -36,7 +36,7 @@ Requirements:
 
 Install from PyPi:
 ```
-pip install tesplitter
+pip install TE-splitter
 ```
 
 Clone and install from this repository:
