@@ -17,18 +17,16 @@ install_requires = [
     'biopython>=1.70',
 ]
 
-desc = """
-Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). Compose synthetic MITES from complete DNA transposons.
-"""
+desc = """Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). Compose synthetic MITES from complete DNA transposons."""
 
-setup(name='exterminate',
+setup(name='TE-splitter',
       version='0.1.0',
       description=desc,
-      url='https://github.com/Adamtaranto/TE-exterminate',
+      url='https://github.com/Adamtaranto/TE-splitter',
       author='Adam Taranto',
       author_email='adam.taranto@anu.edu.au',
       license='MIT',
-      packages=['exterminate'],
+      packages=['tesplitter'],
       classifiers=pypi_classifiers,
       keywords=["Transposon","LTR","TIR","MITE","TE","retrotransposon"],
       install_requires=install_requires,
@@ -36,7 +34,8 @@ setup(name='exterminate',
       zip_safe=False,
       entry_points={
         'console_scripts': [
-            'exterminate=exterminate.command_line:main',
+            'tsplit-LTR=tesplitter.cmd_LTR:main',
+            'tsplit-TIR=tesplitter.cmd_TIR:main',
         ],
     },
     )
