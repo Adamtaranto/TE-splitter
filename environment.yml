@@ -1,0 +1,14 @@
+name: tesplitter
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python >=3.12
+  - mummer
+  - blast
+  - pip
+  - pip:
+      - "biopython>=1.70"
+      - "pymummer>=0.10.3"
+      - pytest
+      - hatch
