@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = 
+description = "Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). Compose synthetic MITES from complete DNA transposons."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Adam Taranto", email = "adam.p.taranto@gmail.com" }
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: OSI Approved :: MIT License",
+]
+
+dependencies = ["biopython>=1.70", "pymummer>=0.10.3"]
+
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/adamtaranto/TE-splitter"
+documentation = "https://github.com/adamtaranto/TE-splitter"
+repository = "https://github.com/adamtaranto/TE-splitter"
+
+[project.scripts]
+tsplit-LTR="tesplitter.cmd_LTR:main"
+tsplit-TIR="tesplitter.cmd_TIR:main"
+
+[tool.hatch.build]
+source = "src"
+
+exclude = [
+    "environment.yml",
+]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.vcs]
+tag-pattern = "v*"  # Git tags starting with 'v' will be used for versioning
+fallback-version = "0.0.0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/tesplitter/_version.py"
+
+[project.optional-dependencies]
+tests = ["pytest"]
