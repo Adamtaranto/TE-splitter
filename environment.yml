@@ -1,4 +1,4 @@
-name: tesplitter
+name: tsplit
 channels:
   - conda-forge
   - bioconda
