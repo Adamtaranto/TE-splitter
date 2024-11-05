@@ -1,4 +1,4 @@
-import tesplitter as tsplit
+import tsplit as tsplit
 import argparse
 import shutil
 
