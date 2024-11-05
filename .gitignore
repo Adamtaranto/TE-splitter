@@ -6,7 +6,7 @@ temp/
 .DS_Store
 
 # Versioning
-src/tesplitter/_version.py
+src/tsplit/_version.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

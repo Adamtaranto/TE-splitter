@@ -3,7 +3,7 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tesplitter"
+name = "tsplit"
 description = "Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). Compose synthetic MITES from complete DNA transposons."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -29,8 +29,8 @@ documentation = "https://github.com/adamtaranto/TE-splitter"
 repository = "https://github.com/adamtaranto/TE-splitter"
 
 [project.scripts]
-tsplit-LTR="tesplitter.cmd_LTR:main"
-tsplit-TIR="tesplitter.cmd_TIR:main"
+tsplit-LTR="tsplit.cmd_LTR:main"
+tsplit-TIR="tsplit.cmd_TIR:main"
 
 [tool.hatch.build]
 source = "src"
@@ -47,7 +47,7 @@ tag-pattern = "v*"  # Git tags starting with 'v' will be used for versioning
 fallback-version = "0.0.0"
 
 [tool.hatch.build.hooks.vcs]
-version-file = "src/tesplitter/_version.py"
+version-file = "src/tsplit/_version.py"
 
 [project.optional-dependencies]
 tests = ["pytest"]

@@ -1,4 +1,4 @@
-# TE-splitter
+# tSplit the TE-splitter
 
 Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). 
 Optionally, compose synthetic MITES from complete DNA transposons.  
