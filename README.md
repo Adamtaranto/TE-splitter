@@ -7,13 +7,13 @@ Optionally, compose synthetic MITES from complete DNA transposons.
 
 * [Algorithm overview](#algorithm-overview)
 * [Options and usage](#options-and-usage)
-    * [Installing TE-splitter](#installing-te-splitter)
+    * [Installing tSplit](#installing-tsplit)
     * [Example usage](#example-usage)
     * [Standard options](#standard-options)
 
 # Algorithm overview
 
-TE-splitter attempts to identify terminal repeats in transposable elements by 
+tSplit attempts to identify terminal repeats in transposable elements by 
 first aligning each element to itself using nucmer, and then applying a set of 
 tuneable heuristics to select an alignment pair most likely to represent an LTR or TIR.  
 
@@ -28,7 +28,7 @@ tuneable heuristics to select an alignment pair most likely to represent an LTR 
 
 # Options and usage  
 
-### Installing TE-splitter
+### Installing tSplit
 
 Requirements: 
   * [pymummer](https://pypi.python.org/pypi/pymummer) version >= 0.10.3 with wrapper for nucmer option *--diagfactor*.
@@ -39,7 +39,7 @@ Installation options:
 
 ```bash
 # Install from PyPi:
-pip install TE-splitter
+pip install tsplit
 
 # Clone and install from this repository:
 git clone https://github.com/Adamtaranto/TE-splitter.git && cd TE-splitter && pip install -e .
@@ -47,7 +47,7 @@ git clone https://github.com/Adamtaranto/TE-splitter.git && cd TE-splitter && pi
 
 ### Example usage  
 
-TE-splitter contains two programs: tsplit-LTR and tsplit-TIR, for extracting long terminal 
+tSplit contains two programs: tsplit-LTR and tsplit-TIR, for extracting long terminal 
 repeats and terminal inverted repeats, respectively. Options are the same
 for each.  
 
