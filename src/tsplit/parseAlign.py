@@ -59,7 +59,9 @@ def getTIRs(
         # Iterate over each record in the fasta file
         for rec in SeqIO.parse(fasta_file, "fasta"):
             # Log the record name and length
-            logging.info(f"Processing record {len(seen_ids) + 1}: Name: {rec.id}, Length: {len(rec)}bp")
+            logging.info(
+                f"Processing record {len(seen_ids) + 1}: Name: {rec.id}, Length: {len(rec)}bp"
+            )
 
             # Check for duplicate IDs
             if rec.id in seen_ids:
@@ -104,26 +106,28 @@ def getTIRs(
 
             # Exclude hits to self. Also converts iterator output to stable list
             alignments = [hit for hit in file_reader if not hit.is_self_hit()]
-            
+
             logging.debug(f"NON SELF ALIGNMENTS: {len(alignments)}")
-            
+
             # Filter hits less than min length (Done internally for nucmer, not blastn.)
             alignments = [
                 hit for hit in alignments if hit.ref_end - hit.ref_start >= minterm
             ]
-            
+
             logging.debug(f"ALIGNMENTS >= minlen {minterm}: {len(alignments)}")
-            
+
             # Filter for hits on same strand i.e. tandem repeats / LTRs
             alignments = [hit for hit in alignments if not hit.on_same_strand()]
-            
+
             logging.debug(f"ALIGNMENTS ON OPPOSITE STRANDS: {len(alignments)}")
-            
+
             # Filter for 5' repeats which begin within x bases of element start
             alignments = [hit for hit in alignments if hit.ref_start <= flankdist]
 
-            logging.debug(f"ALIGNMENTS within {flankdist}bp of element start: {len(alignments)}")
-            
+            logging.debug(
+                f"ALIGNMENTS within {flankdist}bp of element start: {len(alignments)}"
+            )
+
             # Scrub overlapping ref / query segments, and also complementary
             # 3' to 5' flank hits
             alignments = [hit for hit in alignments if hit.ref_end < hit.qry_end]
@@ -131,7 +135,7 @@ def getTIRs(
 
             # Sort largest to smallest dist between end of ref (subject) and start
             # of query (hit)
-            # x.qry_end - x.ref_end = 
+            # x.qry_end - x.ref_end =
             # 5'end of right TIR - 3' end of left TIR = length of internal segment
             # TIR pair with largest internal segment (outermost TIRs) is first in list.
             alignments = sorted(
