@@ -3,15 +3,8 @@ from tsplit.utils import segWrite, tSplitchecks, check_tools
 from tsplit.parseAlign import getTIRs
 
 
-def parse_tir_args(args):
-    return args
-
-
 def main(args=None):
     """Do the work."""
-    if args is None:
-        args = parse_tir_args()
-
     # Set up logging
     init_logging(loglevel=args.loglevel)
 
@@ -45,7 +38,3 @@ def main(args=None):
     )
 
     segWrite(outpath, segs=segments)
-
-
-if __name__ == "__main__":
-    main()
