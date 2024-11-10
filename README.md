@@ -23,8 +23,7 @@ tuneable heuristics to select an alignment pair most likely to represent an LTR 
   3. If `tsplit TIR`: Retain only alignment pairs on opposite strands (inverse repeats)
   4. Retain pairs for which the 5' match begins within x bases of element start
      and whose 3' match ends within x bases of element end
-  5. Exclude alignment pairs which overlap (potential SSRs)
-  6. If multiple candidates remain select alignment pair with largest internal segment 
+  5. If multiple candidates remain select alignment pair with largest internal segment 
   (i.e. closest to element ends)
 
 # Options and usage  
