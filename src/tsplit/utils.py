@@ -30,13 +30,15 @@ def check_tools(required_tools=[], optional_tools=[]):
             path (str): The path to the tool.
             color_code (str): The ANSI color code for the message.
         """
+        tool_padded = tool.ljust(15)
         if path:
-            message = f"{color_code}Tool found: {tool} at {path}\033[0m"
+            message = f"{color_code}{tool_padded}\t{path}\033[0m"
         else:
-            message = f"{color_code}Tool not found: {tool}\033[0m"
+            message = f"{color_code}{tool_padded}\tNOT FOUND\033[0m"
         print(message, file=sys.stderr)
 
     # Check required tools
+    print("Checking for dependencies:", file=sys.stderr)
     for tool in required_tools:
         path = shutil.which(tool)
         if path:
@@ -92,19 +94,19 @@ def tSplitchecks(args):
         outDir = absOutDir
     else:
         outDir = os.getcwd()
-    logging.info(f"Output directory set to: {outDir}")
+    logging.info(f"Set output directory: {outDir}")
 
     # Set the prefix for output files
     if not args.prefix:
         prefix = os.path.splitext(os.path.basename(args.infile))[0]
     else:
         prefix = args.prefix
-    logging.info(f"Prefix set to: {prefix}")
+    logging.info(f"Set prefix: {prefix}")
 
     # Create the output file path
     outfile = prefix + "_tsplit_output.fasta"
     outpath = os.path.join(outDir, outfile)
-    logging.info(f"Output file name set to: {outpath}")
+    logging.info(f"Set outfile target: {outpath}")
 
     # Return the full path to the output file
     return outpath
