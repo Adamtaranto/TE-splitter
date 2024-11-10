@@ -36,8 +36,7 @@ repository = "https://github.com/adamtaranto/TE-splitter"
 
 # Command-line script entry point
 [project.scripts]
-tsplit-LTR="tsplit.cmd_LTR:main"
-tsplit-TIR="tsplit.cmd_TIR:main"
+tsplit="tsplit.app_tsplit:main"
 
 # Hatch build configuration
 [tool.hatch.build]
