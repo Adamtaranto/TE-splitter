@@ -1,9 +1,9 @@
 import argparse
-import logging
 
 from tsplit.logs import init_logging
-from tsplit.utils import importFasta2List, segWrite, tSplitchecks, check_tools
+from tsplit.utils import segWrite, tSplitchecks, check_tools
 from tsplit.parseAlign import getTIRs
+
 
 def mainArgs():
     parser = argparse.ArgumentParser(
@@ -68,8 +68,8 @@ def mainArgs():
         "-m",
         "--maxdist",
         type=int,
-        default=2,
-        help="Terminal repeat candidates must be no more than this many bases from end of input element. (Default: 2)\
+        default=10,
+        help="Terminal repeat candidates must be no more than this many bases from end of input element. (Default: 10)\
                                         Note: Increase this value if you suspect that your element is nested within some flanking sequence.",
     )
     parser.add_argument(
@@ -125,24 +125,20 @@ def main():
     # Check for required programs.
     required_tools = ["delta-filter", "nucmer", "show-coords"]
     optional_tools = ["blastn"]
-    
+
     if args.method == "blastn":
         required_tools.append("blastn")
         optional_tools = []
-        
+
     check_tools(required_tools=required_tools, optional_tools=optional_tools)
 
     # Create output paths as required
     outpath = tSplitchecks(args)
 
-    # Load elements to be screened
-    ## Fix: Do not load fasta into memory!
-    elements = importFasta2List(args.infile)
-
-    # If TIR mode or if makeMITE mode enabled, search for inverted terminal repeats
-    # Optionally construct synthetic MITE from TIRs if discovered
+    # Search for inverted terminal repeats
+    # Optionally construct synthetic MITE from TIRs if detected
     segments = getTIRs(
-        elements=elements,
+        args.infile,
         flankdist=args.maxdist,
         minterm=args.minterm,
         minseed=args.minseed,
@@ -154,6 +150,7 @@ def main():
         temp=args.outdir,
         keeptemp=args.keeptemp,
     )
+
     segWrite(outpath, segs=segments)
 
 

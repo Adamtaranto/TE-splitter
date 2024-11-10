@@ -1,9 +1,7 @@
 import argparse
-import logging
-import shutil
 
 from tsplit.logs import init_logging
-from tsplit.utils import importFasta, segWrite, tSplitchecks, check_tools
+from tsplit.utils import segWrite, tSplitchecks, check_tools
 from tsplit.parseAlign import getLTRs
 
 
@@ -128,26 +126,23 @@ def main():
     check_tools(required_tools=required_tools, optional_tools=optional_tools)
 
     # Create output paths as required
-    outpath, tempdir = tSplitchecks(args)
-
-    # Load elements to be screened
-    elements = importFasta(args.infile)
+    outpath = tSplitchecks(args)
 
     # If LTR mode, search for terminal repeats on same strand
     segments = getLTRs(
-        elements=elements,
+        args.infile,
         flankdist=args.maxdist,
         minterm=args.minterm,
         minseed=args.minseed,
         minid=args.minid,
         diagfactor=args.diagfactor,
         report=args.splitmode,
-        temp=tempdir,
+        temp=args.outdir,
         alignTool=args.method,
         keeptemp=args.keeptemp,
     )
+    
     segWrite(outpath, segs=segments)
 
-    # Remove temp directory
-    if not args.keeptemp:
-        shutil.rmtree(tempdir)
+if __name__ == "__main__":
+    main()
