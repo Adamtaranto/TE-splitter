@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
+import logging
 import os
-import sys
-from Bio import SeqIO
-from collections import Counter
 import re
 import shutil
-import logging
+import sys
+
+from Bio import SeqIO
 
 
 def check_tools(required_tools=[], optional_tools=[]):
@@ -55,13 +55,13 @@ def check_tools(required_tools=[], optional_tools=[]):
 
     # Raise error if any required tool is missing
     if missing_required_tools:
-        error_message = (
-            "ERROR: Some required tools could not be found: "
-            + ", ".join(missing_required_tools)
+        error_message = "ERROR: Some required tools could not be found: " + ", ".join(
+            missing_required_tools
         )
         logging.error(error_message)
-        raise RuntimeError("Missing required tools: " + ", ".join(missing_required_tools))
-
+        raise RuntimeError(
+            "Missing required tools: " + ", ".join(missing_required_tools)
+        )
 
 
 def tSplitchecks(args):
@@ -112,12 +112,16 @@ def tSplitchecks(args):
 
 def getTimestring():
     """
-    Return int only string of current datetime with milliseconds.
-    """
-    (dt, micro) = datetime.utcnow().strftime("%Y%m%d%H%M%S.%f").split(".")
-    dt = "%s%03d" % (dt, int(micro) / 1000)
-    return dt
+    Return a string of the current UTC datetime with milliseconds.
+    The format is YYYYMMDDHHMMSSmmm.
 
+    Returns:
+        str: Current datetime as a string with milliseconds.
+    """
+    now = datetime.now(timezone.utc)
+    dt = now.strftime("%Y%m%d%H%M%S")
+    micro = now.microsecond // 1000
+    return f"{dt}{micro:03d}"
 
 
 def cleanID(s):
@@ -129,34 +133,7 @@ def cleanID(s):
     s = re.sub(r"\s+", "_", s)
     return s
 
-## Fix: Do not load fasta into memory!
-def importFasta2List(file):
-    """Load elements from multifasta file. Check that seq IDs are unique."""
-    # Read in elements from multifasta file, convert seqrecord iterator to list
-    records = list(SeqIO.parse(file, "fasta"))
-    # Check names are unique
-    checkUniqueID(records)
-    # If unique, return record list.
-    return records
 
-
-
-# Fix: Do not load fasta into genome!
-def checkUniqueID(records):
-    """
-    Check that IDs for input elements are unique.
-    """
-    seqIDs = [records[x].id for x in range(len(records))]
-    IDcounts = Counter(seqIDs)
-    duplicates = [k for k, v in IDcounts.items() if v > 1]
-    if duplicates:
-        print("Input sequence IDs not unique. Quiting.")
-        print(duplicates)
-        sys.exit(1)
-    else:
-        pass
-
-## Fix: Do not load fasta into memory!
 def segWrite(outfile, segs=None):
     """
     Take a generator object yielding seqrecords and
@@ -170,18 +147,3 @@ def segWrite(outfile, segs=None):
                 SeqIO.write(seq, handle, "fasta")
         if seqcount == 0:
             os.remove(outfile)
-            
-# Fix: Do not load fasta into genome!
-def importFasta(file):
-    """
-    Load elements from multifasta file. Check that seq IDs are unique.
-    """
-    # Read in elements from multifasta file, convert seqrecord iterator to list
-    records = list(SeqIO.parse(file, "fasta"))
-    # Check names are unique
-    checkUniqueID(records)
-    # If unique, return records as dict keyed by seq id
-    recordsDict = dict()
-    for rec in records:
-        recordsDict[rec.id] = rec
-    return recordsDict
