@@ -48,9 +48,9 @@ def getTIRs(
     # Set temp directory to cwd if none is provided
     if not temp:
         temp = os.getcwd()
-    
+
     # Create a unique temporary directory
-    tempDir = tempfile.mkdtemp(prefix="tsplit_temp_", dir=temp) 
+    tempDir = tempfile.mkdtemp(prefix="tsplit_temp_", dir=temp)
     logging.info(f"Temporary directory created: {tempDir}")
 
     seen_ids = set()
@@ -133,15 +133,11 @@ def getTIRs(
             # pair with largest internal segment i.e. first element in sorted list.
             if alignments:
                 if verbose:
-                    logging.info(
-                        f"Alignments found for candidate element: {rec.id}"
-                    )
+                    logging.info(f"Alignments found for candidate element: {rec.id}")
                     [print(x) for x in alignments]
                 if report in ["split", "external", "all"]:
                     # yield TIR slice - append "_TIR"
-                    extSeg = rec[
-                        alignments[0].ref_start : alignments[0].ref_end + 1
-                    ]
+                    extSeg = rec[alignments[0].ref_start : alignments[0].ref_end + 1]
                     extSeg.id = extSeg.id + "_TIR"
                     extSeg.name = extSeg.id
                     extSeg.description = "[" + rec.id + " TIR segment]"
@@ -214,7 +210,7 @@ def getLTRs(
     # Set temp directory to cwd if none is provided
     if not temp:
         temp = os.getcwd()
-    
+
     # Create a unique temporary directory
     tempDir = tempfile.mkdtemp(prefix="tsplit_temp_", dir=temp)
     logging.info(f"Temporary directory created: {tempDir}")
@@ -301,27 +297,21 @@ def getLTRs(
             # internal segment i.e. first element in sorted list.
             if alignments:
                 if verbose:
-                    logging.info(
-                        f"Alignments found for candidate element: {rec.id}"
-                    )
+                    logging.info(f"Alignments found for candidate element: {rec.id}")
                     [print(x) for x in alignments]
                 if report == "all":
                     # yield original element
                     yield rec
                 if report in ["split", "external"]:
                     # yield LTR slice - append "_LTR"
-                    extSeg = rec[
-                        alignments[0].ref_start : alignments[0].ref_end + 1
-                    ]
+                    extSeg = rec[alignments[0].ref_start : alignments[0].ref_end + 1]
                     extSeg.id = extSeg.id + "_LTR"
                     extSeg.name = extSeg.id
                     extSeg.description = "[" + rec.id + " LTR segment]"
                     yield extSeg
                 if report in ["split", "internal"]:
                     # yield internal slice - append "_I"
-                    intSeg = rec[
-                        alignments[0].ref_end : alignments[0].qry_start + 1
-                    ]
+                    intSeg = rec[alignments[0].ref_end : alignments[0].qry_start + 1]
                     intSeg.id = intSeg.id + "_I"
                     intSeg.name = intSeg.id
                     intSeg.description = "[" + rec.id + " internal segment]"

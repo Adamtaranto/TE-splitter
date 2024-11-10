@@ -3,6 +3,7 @@ import sys
 from tsplit.cmd_TIR import main as tir_main
 from tsplit.cmd_LTR import main as ltr_main
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs)."
@@ -10,7 +11,9 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # TIR subcommand
-    tir_parser = subparsers.add_parser("TIR", help="Extract terminal repeats from DNA transposons (TIRs).")
+    tir_parser = subparsers.add_parser(
+        "TIR", help="Extract terminal repeats from DNA transposons (TIRs)."
+    )
     tir_parser.add_argument(
         "--loglevel",
         default="INFO",
@@ -96,7 +99,9 @@ def main():
     )
 
     # LTR subcommand
-    ltr_parser = subparsers.add_parser("LTR", help="Extract terminal repeats from retrotransposons (LTRs).")
+    ltr_parser = subparsers.add_parser(
+        "LTR", help="Extract terminal repeats from retrotransposons (LTRs)."
+    )
     ltr_parser.add_argument(
         "--loglevel",
         default="INFO",
@@ -184,6 +189,7 @@ def main():
     else:
         parser.print_help()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

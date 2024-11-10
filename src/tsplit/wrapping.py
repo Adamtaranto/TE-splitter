@@ -23,7 +23,9 @@ def run_cmd(cmd, verbose=False, tempDir=None):
     if verbose:
         print("Running command:", cmd, flush=True)
     try:
-        output = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT, cwd=tempDir)
+        output = subprocess.check_output(
+            cmd, shell=True, stderr=subprocess.STDOUT, cwd=tempDir
+        )
         if verbose:
             print(output.decode())
     except subprocess.CalledProcessError as error:
