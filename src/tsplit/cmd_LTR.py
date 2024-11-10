@@ -69,7 +69,7 @@ def mainArgs():
         "--minid",
         type=float,
         default=80.0,
-        help="Minimum identity between terminal repeat pairs. As float. \
+        help="Minimum percentage identity between terminal repeat pairs. As float. \
                                         (Default: 80.0)",
     )
     parser.add_argument(
@@ -98,9 +98,9 @@ def mainArgs():
     )
     parser.add_argument(
         "--method",
-        default="nucmer",
+        default="blastn",
         choices=["blastn", "nucmer"],
-        help='Select alignment method: "blastn" or "nucmer".(Default: nucmer)',
+        help='Select alignment method: "blastn" or "nucmer".(Default: blastn)',
     )
     args = parser.parse_args()
     return args
