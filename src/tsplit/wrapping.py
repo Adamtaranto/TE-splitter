@@ -1,21 +1,17 @@
-import re
-import subprocess
-import tempfile
-import sys
-import os
-import shutil
 from shlex import quote
 import logging
+import subprocess
+import sys
 
 
-def run_cmd(cmd, verbose=False, tempDir=None):
+def run_cmd(cmd, verbose=False, workingDir=None):
     """
     Execute a command in the specified directory.
 
     Args:
         cmd (str): The command to execute.
         verbose (bool): Whether to print verbose output.
-        tempDir (str): The directory in which to execute the command.
+        workingDir (str): The directory in which to execute the command.
 
     Raises:
         subprocess.CalledProcessError: If the command returns a non-zero exit code.
@@ -24,7 +20,7 @@ def run_cmd(cmd, verbose=False, tempDir=None):
         print("Running command:", cmd, flush=True)
     try:
         output = subprocess.check_output(
-            cmd, shell=True, stderr=subprocess.STDOUT, cwd=tempDir
+            cmd, shell=True, stderr=subprocess.STDOUT, cwd=workingDir
         )
         if verbose:
             print(output.decode())

@@ -99,7 +99,7 @@ def getTIRs(
             elif alignTool == "blastn":
                 # Alternatively, use blastn as search tool and write nucmer.coords-like output.
                 cmd = makeBlast(seq=tempFasta, outfile=tempCoords, pid=minid)
-                run_cmd(cmd, verbose=verbose, tempDir=tempDir)
+                run_cmd(cmd, verbose=verbose, workingDir=tempDir)
 
             # Import coords file to iterator object
             file_reader = coords_file.reader(tempCoords)
@@ -272,7 +272,7 @@ def getLTRs(
             elif alignTool == "blastn":
                 # Alternatively, use blastn as search tool and write nucmer.coords-like output.
                 cmd = makeBlast(seq=tempFasta, outfile=tempCoords, pid=minid)
-                run_cmd(cmd, verbose=verbose, tempDir=tempDir)
+                run_cmd(cmd, verbose=verbose, workingDir=tempDir)
 
             # Import coords file to iterator object
             file_reader = coords_file.reader(tempCoords)
