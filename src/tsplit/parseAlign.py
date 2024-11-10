@@ -101,46 +101,8 @@ def getTIRs(
                 cmd = makeBlast(seq=tempFasta, outfile=tempCoords, pid=minid)
                 run_cmd(cmd, verbose=verbose, workingDir=tempDir)
 
-            # Import coords file to iterator object
-            file_reader = coords_file.reader(tempCoords)
-
-            # Exclude hits to self. Also converts iterator output to stable list
-            alignments = [hit for hit in file_reader if not hit.is_self_hit()]
-
-            logging.debug(f"NON SELF ALIGNMENTS: {len(alignments)}")
-
-            # Filter hits less than min length (Done internally for nucmer, not blastn.)
-            alignments = [
-                hit for hit in alignments if hit.ref_end - hit.ref_start >= minterm
-            ]
-
-            logging.debug(f"ALIGNMENTS >= minlen {minterm}: {len(alignments)}")
-
-            # Filter for hits on same strand i.e. tandem repeats / LTRs
-            alignments = [hit for hit in alignments if not hit.on_same_strand()]
-
-            logging.debug(f"ALIGNMENTS ON OPPOSITE STRANDS: {len(alignments)}")
-
-            # Filter for 5' repeats which begin within x bases of element start
-            alignments = [hit for hit in alignments if hit.ref_start <= flankdist]
-
-            logging.debug(
-                f"ALIGNMENTS within {flankdist}bp of element start: {len(alignments)}"
-            )
-
-            # Scrub overlapping ref / query segments, and also complementary
-            # 3' to 5' flank hits
-            alignments = [hit for hit in alignments if hit.ref_end < hit.qry_end]
-            logging.debug(f"NON-OVERLAPPING ALIGNMENTS: {len(alignments)}")
-
-            # Sort largest to smallest dist between end of ref (subject) and start
-            # of query (hit)
-            # x.qry_end - x.ref_end =
-            # 5'end of right TIR - 3' end of left TIR = length of internal segment
-            # TIR pair with largest internal segment (outermost TIRs) is first in list.
-            alignments = sorted(
-                alignments, key=lambda x: (x.qry_start - x.ref_end), reverse=True
-            )
+            alignments = filterCoordsFileTIR(tempCoords, rec, minterm=minterm, flankdist=flankdist)
+            
             # If alignments exist after filtering, report features using alignment
             # pair with largest internal segment i.e. first element in sorted list.
             if alignments:
@@ -186,6 +148,58 @@ def getTIRs(
         else:
             logging.info(f"Temporary directory retained: {tempDir}")
 
+def filterCoordsFileTIR(coordsFile, record, minterm=10, flankdist=10):
+    # Import coords file to iterator object
+            file_reader = coords_file.reader(coordsFile)
+
+            # Exclude hits to self. Also converts iterator output to stable list
+            alignments = [hit for hit in file_reader if not hit.is_self_hit()]
+
+            logging.debug(f"NON SELF ALIGNMENTS: {len(alignments)}")
+
+            # Filter hits less than min length (Done internally for nucmer, not blastn.)
+            alignments = [
+                hit for hit in alignments if hit.ref_end - hit.ref_start >= minterm
+            ]
+
+            logging.debug(f"ALIGNMENTS >= minlen {minterm}bp: {len(alignments)}")
+
+            # Filter for hits on same strand i.e. tandem repeats / LTRs
+            alignments = [hit for hit in alignments if not hit.on_same_strand()]
+
+            logging.debug(f"ALIGNMENTS ON OPPOSITE STRANDS: {len(alignments)}")
+
+            # Filter for 5' repeats which begin within x bases of element start
+            alignments = [hit for hit in alignments if hit.ref_start <= flankdist]
+
+            logging.debug(
+                f"ALIGNMENTS within {flankdist}bp of element start: {len(alignments)}"
+            )
+
+            # Filter for 5' repeats with complementary hits within x bases of element end
+            # Note: when hit is on opposite strand, hit.qry_start is the 3' end 
+            alignments = [hit for hit in alignments if (len(record) - (hit.qry_start + 1)) <= flankdist]
+            
+            logging.debug(
+                f"ALIGNMENTS with hit within {flankdist}bp of element end at {len(record)}bp: {len(alignments)}"
+            )
+            
+            # Scrub overlapping ref / query segments, and also complementary
+            # 3' to 5' flank hits
+            alignments = [hit for hit in alignments if hit.ref_end < hit.qry_end]
+            
+            logging.debug(f"NON-OVERLAPPING ALIGNMENTS: {len(alignments)}")
+
+            # Sort largest to smallest dist between end of ref (subject) and start
+            # of query (hit)
+            # x.qry_end - x.ref_end =
+            # 5'end of right TIR - 3' end of left TIR = length of internal segment
+            # TIR pair with largest internal segment (outermost TIRs) is first in list.
+            alignments = sorted(
+                alignments, key=lambda x: (x.qry_end - x.ref_end), reverse=True
+            )
+            
+            return alignments
 
 def getLTRs(
     fasta_file,
@@ -280,22 +294,35 @@ def getLTRs(
             # Exclude hits to self. Also converts iterator output to stable list
             alignments = [hit for hit in file_reader if not hit.is_self_hit()]
 
+            logging.debug(f"NON SELF ALIGNMENTS: {len(alignments)}")
+            
             # Filter hits less than min length (Done internally for nucmer, not blastn.)
             alignments = [
                 hit for hit in alignments if hit.ref_end - hit.ref_start >= minterm
             ]
 
+            logging.debug(f"ALIGNMENTS >= minlen {minterm}bp: {len(alignments)}")
+
             # Filter for hits on same strand i.e. tandem repeats / LTRs
             alignments = [hit for hit in alignments if hit.on_same_strand()]
 
+            logging.debug(f"ALIGNMENTS ON SAME STRAND: {len(alignments)}")
+            
             # Filter for 5' repeats which begin within x bases of element start
             alignments = [hit for hit in alignments if hit.ref_start <= flankdist]
 
+            logging.debug(
+                f"ALIGNMENTS within {flankdist}bp of element start: {len(alignments)}"
+            )
+            
             # Filter for 5' repeats whose 3' match ends within x bases of element end
             alignments = [
-                hit for hit in alignments if len(rec) - hit.qry_end <= flankdist
+                hit for hit in alignments if len(rec) - hit.qry_end + 1 <= flankdist
             ]
-
+            
+            logging.debug(
+                f"ALIGNMENTS with hit within {flankdist}bp of element end at {len(rec)}bp: {len(alignments)}"
+            )
             # Scrub overlappying ref / query segments, and also complementary 3' to 5' flank hits
             alignments = [hit for hit in alignments if hit.ref_end < hit.qry_start]
 
