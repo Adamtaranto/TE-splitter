@@ -508,26 +508,3 @@ def filterCoordsFileLTR(coordsFile, record, minterm=10, flankdist=10):
     )
 
     return alignments
-
-
-"""
-# Useful attributes of pymummer objects:
-[x.ref_start for x in alignments]
-[x.ref_end for x in alignments]
-[x.qry_start for x in alignments]
-[x.qry_end for x in alignments]
-[x.hit_length_ref for x in alignments]
-[x.hit_length_qry for x in alignments]
-[x.percent_identity for x in alignments]
-[x.ref_length for x in alignments]
-[x.qry_length for x in alignments]
-[x.frame for x in alignments]
-[x.ref_name for x in alignments]
-[x.qry_name for x in alignments]
-
-## Don't use these, bizzaro format. Not indexed to 0. Cannot sort as ints.
-#coord.reverse_query()
-#coord.reverse_reference()
-#coord.qry_coords()
-#coord.ref_coords()
-"""
