@@ -38,7 +38,7 @@ def check_tools(required_tools=[], optional_tools=[]):
         print(message, file=sys.stderr)
 
     # Check required tools
-    print("Checking for dependencies:", file=sys.stderr)
+    logging.info("Checking for dependencies:")
     for tool in required_tools:
         path = shutil.which(tool)
         if path:
@@ -90,40 +90,26 @@ def tSplitchecks(args):
         absOutDir = os.path.abspath(args.outdir)
         if not os.path.isdir(absOutDir):
             os.makedirs(absOutDir)
-            logging.info(f"Output directory created: {absOutDir}")
+            logging.info(f"Creating output directory: {absOutDir}")
         outDir = absOutDir
     else:
         outDir = os.getcwd()
-    logging.info(f"Set output directory: {outDir}")
+    logging.debug(f"Set output directory: {outDir}")
 
     # Set the prefix for output files
     if not args.prefix:
         prefix = os.path.splitext(os.path.basename(args.infile))[0]
     else:
         prefix = args.prefix
-    logging.info(f"Set prefix: {prefix}")
+    logging.debug(f"Set prefix: {prefix}")
 
     # Create the output file path
     outfile = prefix + "_tsplit_output.fasta"
     outpath = os.path.join(outDir, outfile)
-    logging.info(f"Set outfile target: {outpath}")
+    logging.debug(f"Set outfile target: {outpath}")
 
     # Return the full path to the output file
     return outpath
-
-
-def getTimestring():
-    """
-    Return a string of the current UTC datetime with milliseconds.
-    The format is YYYYMMDDHHMMSSmmm.
-
-    Returns:
-        str: Current datetime as a string with milliseconds.
-    """
-    now = datetime.now(timezone.utc)
-    dt = now.strftime("%Y%m%d%H%M%S")
-    micro = now.microsecond // 1000
-    return f"{dt}{micro:03d}"
 
 
 def cleanID(s):
