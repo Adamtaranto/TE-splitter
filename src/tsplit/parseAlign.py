@@ -3,10 +3,8 @@ import logging
 import tempfile
 import shutil
 
-from Bio import pairwise2
 from Bio import SeqIO
-from Bio.pairwise2 import format_alignment
-
+from Bio.Align import PairwiseAligner
 from pymummer import coords_file, nucmer
 
 from tsplit.wrapping import run_cmd, makeBlast
@@ -142,11 +140,13 @@ def getTIRs(
                         # Reverse complement the qry sequence
                         qry_seq = qry_seq.reverse_complement()
 
-                        # Perform global alignment
-                        alignments = pairwise2.align.globalxx(ref_seq, qry_seq)
+                        # Perform global alignment using PairwiseAligner
+                        aligner = PairwiseAligner()
+                        pairwise_alignments = aligner.align(ref_seq, qry_seq)
 
-                        # Print the gapped alignment
-                        print(format_alignment(*alignments[0], full_sequences=True))
+                        # Print the first gapped alignment
+                        if pairwise_alignments:
+                            print(pairwise_alignments[0])
 
                     if report in ["split", "external", "all"]:
                         # yield TIR slice - append "_TIR"
@@ -366,11 +366,13 @@ def getLTRs(
                         ref_seq = rec[ref_start : ref_end + 1].seq
                         qry_seq = rec[qry_start : qry_end + 1].seq
 
-                        # Perform global alignment
-                        alignments = pairwise2.align.globalxx(ref_seq, qry_seq)
+                        # Perform global alignment using PairwiseAligner
+                        aligner = PairwiseAligner()
+                        pairwise_alignments = aligner.align(ref_seq, qry_seq)
 
-                        # Print the gapped alignment
-                        print(format_alignment(*alignments[0], full_sequences=True))
+                        # Print the first gapped alignment
+                        if pairwise_alignments:
+                            print(pairwise_alignments[0])
 
                     if report in ["split", "external", "all"]:
                         # yield LTR slice - append "_LTR"
