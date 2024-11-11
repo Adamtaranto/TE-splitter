@@ -55,7 +55,7 @@ def getTIRs(
     logging.debug(f"Temporary directory created: {tempDir}")
 
     seen_ids = set()
-    
+
     found_TIRs_count = 0
 
     try:
@@ -70,7 +70,7 @@ def getTIRs(
             if rec.id in seen_ids:
                 logging.error(f"Duplicate record ID found: {rec.id}")
                 raise ValueError(f"Duplicate record ID found: {rec.id}")
-            
+
             # Add the record ID to the set of seen IDs
             seen_ids.add(rec.id)
 
@@ -115,8 +115,10 @@ def getTIRs(
             if alignments:
                 # Increment the count of elements with TIRs
                 found_TIRs_count += 1
-                
-                logging.info(f"Found {len(alignments)} alignments for candidate element: {rec.id}")
+
+                logging.info(
+                    f"Found {len(alignments)} alignments for candidate element: {rec.id}"
+                )
 
                 [print(x) for x in alignments]
 
@@ -163,7 +165,9 @@ def getTIRs(
                         extSeg.id = f"{extSeg.id}_TIR"
                         extSeg.name = extSeg.id
                         extSeg.description = f"[{rec.id} TIR segment]"
-                        logging.info(f"Yielding TIR segment: {extSeg.id}, len: {len(extSeg)}bp")
+                        logging.info(
+                            f"Yielding TIR segment: {extSeg.id}, len: {len(extSeg)}bp"
+                        )
                         yield extSeg
 
                     if report in ["split", "internal", "all"]:
@@ -174,10 +178,14 @@ def getTIRs(
                         intSeg.id = f"{intSeg.id}_I"
                         intSeg.name = intSeg.id
                         intSeg.description = f"[{rec.id} internal segment]"
-                        logging.info(f"Yielding internal segment: {intSeg.id}, len: {len(intSeg)}bp")
+                        logging.info(
+                            f"Yielding internal segment: {intSeg.id}, len: {len(intSeg)}bp"
+                        )
                         yield intSeg
                     if report == "all":
-                        logging.info(f"Yielding original element: {rec.id}, len: {len(rec)}bp")
+                        logging.info(
+                            f"Yielding original element: {rec.id}, len: {len(rec)}bp"
+                        )
                         yield rec
                 if mites:
                     # Assemble TIRs into hypothetical MITEs
@@ -199,10 +207,10 @@ def getTIRs(
     finally:
         # Log finished processing len(seen_ids) elements
         logging.info(f"Finished processing {len(seen_ids)} elements.")
-        
+
         # Log number of elements with TIRs
         logging.info(f"Found TIRs in {found_TIRs_count} elements.")
-        
+
         # Clean up the temporary directory if keeptemp is False
         if not keeptemp:
             shutil.rmtree(tempDir)
@@ -306,7 +314,7 @@ def getLTRs(
 
     # Set to store seen IDs
     seen_ids = set()
-    
+
     # Count of elements with LTRs
     found_LTRs_count = 0
 
@@ -362,8 +370,10 @@ def getLTRs(
             if alignments:
                 # Increment the count of elements with LTRs
                 found_LTRs_count += 1
-                
-                logging.info(f"Found {len(alignments)} alignments for candidate element: {rec.id}")
+
+                logging.info(
+                    f"Found {len(alignments)} alignments for candidate element: {rec.id}"
+                )
 
                 [print(x) for x in alignments]
 
@@ -407,7 +417,9 @@ def getLTRs(
                         extSeg.id = f"{extSeg.id}_LTR"
                         extSeg.name = extSeg.id
                         extSeg.description = f"[{rec.id} LTR segment]"
-                        logging.info(f"Yielding LTR segment: {extSeg.id}, len: {len(extSeg)}bp")
+                        logging.info(
+                            f"Yielding LTR segment: {extSeg.id}, len: {len(extSeg)}bp"
+                        )
                         yield extSeg
 
                     if report in ["split", "internal", "all"]:
@@ -418,12 +430,16 @@ def getLTRs(
                         intSeg.id = f"{intSeg.id}_I"
                         intSeg.name = intSeg.id
                         intSeg.description = f"[{rec.id} internal segment]"
-                        logging.info(f"Yielding internal segment: {intSeg.id}, len: {len(intSeg)}bp")
+                        logging.info(
+                            f"Yielding internal segment: {intSeg.id}, len: {len(intSeg)}bp"
+                        )
                         yield intSeg
 
                     if report == "all":
                         # yield original element
-                        logging.info(f"Yielding original element: {rec.id}, len: {len(rec)}bp")
+                        logging.info(
+                            f"Yielding original element: {rec.id}, len: {len(rec)}bp"
+                        )
                         yield rec
             else:
                 # If alignment list is empty after filtering, print alert and continue.
@@ -431,10 +447,10 @@ def getLTRs(
     finally:
         # Log finished processing len(seen_ids) elements
         logging.info(f"Finished processing {len(seen_ids)} elements.")
-        
+
         # Log number of elements with LTRs
         logging.info(f"Found TIRs in {found_LTRs_count} elements.")
-        
+
         # Clean up the temporary directory if keeptemp is False
         if not keeptemp:
             shutil.rmtree(tempDir)
