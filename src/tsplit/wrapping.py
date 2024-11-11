@@ -17,7 +17,7 @@ def run_cmd(cmd, verbose=False, workingDir=None):
         subprocess.CalledProcessError: If the command returns a non-zero exit code.
     """
     if verbose:
-        print("Running command:", cmd, flush=True)
+        print("\nRunning command:", cmd, flush=True)
     try:
         output = subprocess.check_output(
             cmd, shell=True, stderr=subprocess.STDOUT, cwd=workingDir
