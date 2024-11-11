@@ -51,10 +51,12 @@ def getTIRs(
         temp = os.getcwd()
 
     # Create a unique temporary directory
-    tempDir = tempfile.mkdtemp(prefix="tsplit_temp_", dir=temp)
-    logging.info(f"Init temp directory: {tempDir}")
+    tempDir = tempfile.mkdtemp(prefix=f"tsplit_TIR_temp_{alignTool}_", dir=temp)
+    logging.debug(f"Temporary directory created: {tempDir}")
 
     seen_ids = set()
+    
+    found_TIRs_count = 0
 
     try:
         # Iterate over each record in the fasta file
@@ -68,6 +70,8 @@ def getTIRs(
             if rec.id in seen_ids:
                 logging.error(f"Duplicate record ID found: {rec.id}")
                 raise ValueError(f"Duplicate record ID found: {rec.id}")
+            
+            # Add the record ID to the set of seen IDs
             seen_ids.add(rec.id)
 
             # Create temp paths for single element fasta and alignment coords
@@ -109,7 +113,10 @@ def getTIRs(
             # If alignments exist after filtering, report features using alignment
             # pair with largest internal segment i.e. first element in sorted list.
             if alignments:
-                logging.info(f"Alignments found for candidate element: {rec.id}")
+                # Increment the count of elements with TIRs
+                found_TIRs_count += 1
+                
+                logging.info(f"Found {len(alignments)} alignments for candidate element: {rec.id}")
 
                 [print(x) for x in alignments]
 
@@ -132,28 +139,31 @@ def getTIRs(
                         logging.warning(
                             f"Length of TIRs do not match: {alignments[0].hit_length_ref}bp vs {alignments[0].hit_length_qry}bp \nref_coords: {alignments[0].ref_coords()} \nqry_coords: {alignments[0].qry_coords()} \nYou may want to inspect the alignment:"
                         )
+                    else:
+                        logging.info("Alignment of TIRs:")
 
-                        # Extract the ref and qry sequences
-                        ref_seq = rec[ref_start : ref_end + 1].seq
-                        qry_seq = rec[qry_start : qry_end + 1].seq
+                    # Extract the ref and qry sequences
+                    ref_seq = rec[ref_start : ref_end + 1].seq
+                    qry_seq = rec[qry_start : qry_end + 1].seq
 
-                        # Reverse complement the qry sequence
-                        qry_seq = qry_seq.reverse_complement()
+                    # Reverse complement the qry sequence
+                    qry_seq = qry_seq.reverse_complement()
 
-                        # Perform global alignment using PairwiseAligner
-                        aligner = PairwiseAligner()
-                        pairwise_alignments = aligner.align(ref_seq, qry_seq)
+                    # Perform global alignment using PairwiseAligner
+                    aligner = PairwiseAligner(scoring="blastn")
+                    pairwise_alignments = aligner.align(ref_seq, qry_seq)
 
-                        # Print the first gapped alignment
-                        if pairwise_alignments:
-                            print(pairwise_alignments[0])
+                    # Print the first gapped alignment
+                    if pairwise_alignments:
+                        print(pairwise_alignments[0])
 
                     if report in ["split", "external", "all"]:
                         # yield TIR slice - append "_TIR"
                         extSeg = rec[ref_start : ref_end + 1]  # +1 to include end base
-                        extSeg.id = extSeg.id + "_TIR"
+                        extSeg.id = f"{extSeg.id}_TIR"
                         extSeg.name = extSeg.id
                         extSeg.description = f"[{rec.id} TIR segment]"
+                        logging.info(f"Yielding TIR segment: {extSeg.id}, len: {len(extSeg)}bp")
                         yield extSeg
 
                     if report in ["split", "internal", "all"]:
@@ -161,30 +171,38 @@ def getTIRs(
                         intSeg = rec[
                             ref_end + 1 : qry_start
                         ]  # no +1 as we want to exclude the base at qry_start
-                        intSeg.id = intSeg.id + "_I"
+                        intSeg.id = f"{intSeg.id}_I"
                         intSeg.name = intSeg.id
                         intSeg.description = f"[{rec.id} internal segment]"
+                        logging.info(f"Yielding internal segment: {intSeg.id}, len: {len(intSeg)}bp")
                         yield intSeg
                     if report == "all":
+                        logging.info(f"Yielding original element: {rec.id}, len: {len(rec)}bp")
                         yield rec
                 if mites:
                     # Assemble TIRs into hypothetical MITEs
+                    spacer = 0  # Spacer length between TIRs. Future option.
                     synMITE = (
-                        rec[
-                            ref_start : ref_end + 1
-                        ]  # increase increment of ref_end if we want to include a spacer sequence
+                        rec[ref_start : ref_end + 1 + spacer]
                         + rec[qry_start : qry_end + 1]
                     )
-                    synMITE.id = synMITE.id + "_synMITE"
+                    synMITE.id = f"{synMITE.id}_synMITE"
                     synMITE.name = synMITE.id
                     synMITE.description = (
                         f"[Synthetic MITE constructed from {rec.id} TIRs]"
                     )
+                    logging.info(f"Yielding synthetic MITE: {synMITE.id}")
                     yield synMITE
             else:
                 # If alignment list empty after filtering, print alert and continue
                 logging.info(f"No TIRs found for candidate element: {rec.id}")
     finally:
+        # Log finished processing len(seen_ids) elements
+        logging.info(f"Finished processing {len(seen_ids)} elements.")
+        
+        # Log number of elements with TIRs
+        logging.info(f"Found TIRs in {found_TIRs_count} elements.")
+        
         # Clean up the temporary directory if keeptemp is False
         if not keeptemp:
             shutil.rmtree(tempDir)
@@ -283,16 +301,20 @@ def getLTRs(
         temp = os.getcwd()
 
     # Create a unique temporary directory
-    tempDir = tempfile.mkdtemp(prefix="tsplit_temp_", dir=temp)
-    logging.info(f"Temporary directory created: {tempDir}")
+    tempDir = tempfile.mkdtemp(prefix=f"tsplit_LTR_temp_{alignTool}_", dir=temp)
+    logging.debug(f"Temporary directory created: {tempDir}")
 
+    # Set to store seen IDs
     seen_ids = set()
+    
+    # Count of elements with LTRs
+    found_LTRs_count = 0
 
     try:
         # Iterate over each record in the fasta file
         for rec in SeqIO.parse(fasta_file, "fasta"):
             # Log the record name and length
-            logging.info(f"Processing record: {rec.id}, Length: {len(rec)}")
+            logging.info(f"Processing record: {rec.id}, Length: {len(rec)}bp")
 
             # Check for duplicate IDs
             if rec.id in seen_ids:
@@ -338,7 +360,10 @@ def getLTRs(
             # If alignments exist after filtering report features using alignment pair with largest
             # internal segment i.e. first element in sorted list.
             if alignments:
-                logging.info(f"Alignments found for candidate element: {rec.id}")
+                # Increment the count of elements with LTRs
+                found_LTRs_count += 1
+                
+                logging.info(f"Found {len(alignments)} alignments for candidate element: {rec.id}")
 
                 [print(x) for x in alignments]
 
@@ -361,18 +386,20 @@ def getLTRs(
                         logging.warning(
                             f"Length of LTRs do not match: {alignments[0].hit_length_ref}bp vs {alignments[0].hit_length_qry}bp \nref_coords: {alignments[0].ref_coords()} \nqry_coords: {alignments[0].qry_coords()} \nYou may want to inspect the alignment:"
                         )
+                    else:
+                        logging.info("Alignment of LTRs:")
 
-                        # Extract the ref and qry sequences
-                        ref_seq = rec[ref_start : ref_end + 1].seq
-                        qry_seq = rec[qry_start : qry_end + 1].seq
+                    # Extract the ref and qry sequences
+                    ref_seq = rec[ref_start : ref_end + 1].seq
+                    qry_seq = rec[qry_start : qry_end + 1].seq
 
-                        # Perform global alignment using PairwiseAligner
-                        aligner = PairwiseAligner()
-                        pairwise_alignments = aligner.align(ref_seq, qry_seq)
+                    # Perform global alignment using PairwiseAligner
+                    aligner = PairwiseAligner(scoring="blastn")
+                    pairwise_alignments = aligner.align(ref_seq, qry_seq)
 
-                        # Print the first gapped alignment
-                        if pairwise_alignments:
-                            print(pairwise_alignments[0])
+                    # Print the first gapped alignment
+                    if pairwise_alignments:
+                        print(pairwise_alignments[0])
 
                     if report in ["split", "external", "all"]:
                         # yield LTR slice - append "_LTR"
@@ -380,6 +407,7 @@ def getLTRs(
                         extSeg.id = f"{extSeg.id}_LTR"
                         extSeg.name = extSeg.id
                         extSeg.description = f"[{rec.id} LTR segment]"
+                        logging.info(f"Yielding LTR segment: {extSeg.id}, len: {len(extSeg)}bp")
                         yield extSeg
 
                     if report in ["split", "internal", "all"]:
@@ -390,19 +418,27 @@ def getLTRs(
                         intSeg.id = f"{intSeg.id}_I"
                         intSeg.name = intSeg.id
                         intSeg.description = f"[{rec.id} internal segment]"
+                        logging.info(f"Yielding internal segment: {intSeg.id}, len: {len(intSeg)}bp")
                         yield intSeg
 
                     if report == "all":
                         # yield original element
+                        logging.info(f"Yielding original element: {rec.id}, len: {len(rec)}bp")
                         yield rec
             else:
                 # If alignment list is empty after filtering, print alert and continue.
                 logging.info(f"No LTRs found for candidate element: {rec.id}")
     finally:
+        # Log finished processing len(seen_ids) elements
+        logging.info(f"Finished processing {len(seen_ids)} elements.")
+        
+        # Log number of elements with LTRs
+        logging.info(f"Found TIRs in {found_LTRs_count} elements.")
+        
         # Clean up the temporary directory if keeptemp is False
         if not keeptemp:
             shutil.rmtree(tempDir)
-            logging.info(f"Temporary directory deleted: {tempDir}")
+            logging.info(f"Cleaning up temporary directory: {tempDir}")
         else:
             logging.info(f"Temporary directory retained: {tempDir}")
 
