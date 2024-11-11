@@ -42,6 +42,6 @@ jobs:
       - name: Run tests
         run: |
           conda activate test-env
-          pytest tests
+          pytest tests -p no:warnings
         shell: bash -l {0}
         
