@@ -1,7 +1,9 @@
+# Build system configuration
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
+# Project metadata
 [project]
 name = "tsplit"
 description = "Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). Compose synthetic MITES from complete DNA transposons."
@@ -12,6 +14,7 @@ authors = [
     { name = "Adam Taranto", email = "adam.p.taranto@gmail.com" }
 ]
 
+# Classifiers for project categorization
 classifiers = [
     "Programming Language :: Python :: 3",
     "Intended Audience :: Science/Research",
@@ -19,35 +22,44 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
 ]
 
+# Project dependencies
 dependencies = ["biopython>=1.70", "pymummer>=0.10.3"]
 
+# Dynamic versioning
 dynamic = ["version"]
 
+# Project URLs
 [project.urls]
 homepage = "https://github.com/adamtaranto/TE-splitter"
 documentation = "https://github.com/adamtaranto/TE-splitter"
 repository = "https://github.com/adamtaranto/TE-splitter"
 
+# Command-line script entry point
 [project.scripts]
-tsplit-LTR="tsplit.cmd_LTR:main"
-tsplit-TIR="tsplit.cmd_TIR:main"
+tsplit="tsplit.app_tsplit:main"
 
+# Hatch build configuration
 [tool.hatch.build]
 source = "src"
 
+# Exclude files and directories from the build
 exclude = [
     "environment.yml",
 ]
 
+# Hatch versioning configuration
 [tool.hatch.version]
 source = "vcs"
 
+# Version control system (VCS) versioning
 [tool.hatch.version.vcs]
 tag-pattern = "v*"  # Git tags starting with 'v' will be used for versioning
 fallback-version = "0.0.0"
 
+# Version file location for VCS
 [tool.hatch.build.hooks.vcs]
 version-file = "src/tsplit/_version.py"
 
+# Optional dependencies for testing
 [project.optional-dependencies]
 tests = ["pytest"]
