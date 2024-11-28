@@ -24,7 +24,7 @@ jobs:
           auto-update-conda: true  # Optional: update Conda to the latest version
           python-version: ${{ matrix.python-version }}
 
-      # Install any additional dependencies not listed in environment.yml
+      # Install any additional dependencies not included in the pyproject.toml file
       - name: Install additional dependencies
         run: |
           conda install -y -c conda-forge -c bioconda mummer blast
