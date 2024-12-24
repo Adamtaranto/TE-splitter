@@ -56,9 +56,7 @@ def parse_args() -> argparse.Namespace:
         help="Output file path for tab-delimited results (optional)",
     )
     parser.add_argument(
-        "--gff",
-        type=str,
-        help="Output file path for GFF3 format results (optional)"
+        "--gff", type=str, help="Output file path for GFF3 format results (optional)"
     )
 
     return parser.parse_args()
@@ -408,7 +406,7 @@ def write_results(
         1. tsd_len (descending)
         2. left_pos (ascending)
     """
-    print("Processing results...")
+    print("\nProcessing results...")
 
     # Calculate mismatches and prepare sorted results
     processed_results = []
@@ -473,17 +471,18 @@ def write_results(
 
     print("Done writing results.")
 
+
 def write_gff(
     results: List[dict],
     output_path: str,
     k: int,
     sequence_id: str,
     left_interval: str,
-    right_interval: str
+    right_interval: str,
 ) -> None:
     """
     Write TIR and TSD pairs to GFF3 format, including search interval annotations.
-    
+
     Args:
         results: List of processed result dictionaries
         output_path: Path to output GFF file
@@ -491,23 +490,25 @@ def write_gff(
         sequence_id: ID of the reference sequence
         left_interval: Left interval string (format: start-end)
         right_interval: Right interval string (format: start-end)
-        
+
     GFF3 Format:
         seqid, source, type, start, end, score, strand, phase, attributes
     """
     print(f"\nWriting GFF to {output_path}...")
-    
+
     # Parse interval coordinates
-    left_start, left_end = map(int, left_interval.split('-'))
-    right_start, right_end = map(int, right_interval.split('-'))
-    
+    left_start, left_end = map(int, left_interval.split("-"))
+    right_start, right_end = map(int, right_interval.split("-"))
+
     # Calculate total number of records for progress bar
-    total_records = len(results) * 4 + 2 # 4 records per result (2 TIRs + 2 TSDs) + 2 intervals
-    
-    with open(output_path, 'w') as f:
+    total_records = (
+        len(results) * 4 + 2
+    )  # 4 records per result (2 TIRs + 2 TSDs) + 2 intervals
+
+    with open(output_path, "w") as f:
         # Write GFF header
         f.write("##gff-version 3\n")
-        
+
         # Initialize progress bar for all records
         with tqdm(total=total_records, desc="Writing GFF records") as pbar:
             # Write search interval annotations
@@ -516,58 +517,58 @@ def write_gff(
                 f".\t.\t.\tID=search_region_L;Name=Left_search_interval\n"
             )
             pbar.update(1)
-            
+
             f.write(
                 f"{sequence_id}\tTIR_finder\tsearch_region\t{right_start}\t{right_end}\t"
                 f".\t.\t.\tID=search_region_R;Name=Right_search_interval\n"
             )
             pbar.update(1)
-            
+
             # Process each TIR pair
             for i, result in enumerate(results):
                 pair_id = f"TIR_pair_{i+1}"
-                
+
                 # Calculate coordinates (convert to 1-based for GFF)
-                left_tir_start = result['left_pos']
+                left_tir_start = result["left_pos"]
                 left_tir_end = left_tir_start + k - 1
-                right_tir_start = result['right_pos'] - k + 1
-                right_tir_end = result['right_pos']
-                
+                right_tir_start = result["right_pos"] - k + 1
+                right_tir_end = result["right_pos"]
+
                 # Calculate TSD coordinates
-                tsd_len = result['tsd_len']
+                tsd_len = result["tsd_len"]
                 left_tsd_start = left_tir_start - tsd_len
-                left_tsd_end = left_tir_start - 1 
+                left_tsd_end = left_tir_start - 1
                 right_tsd_start = right_tir_end + 1
                 right_tsd_end = right_tir_end + tsd_len
-                
+
                 # Write left TIR
                 left_tir_attrs = (
                     f"ID={pair_id}_TIR_L;"
                     f"Parent={pair_id};"
                     f"mismatch_count={result['mismatch_count']};"
                     f"seq={result['left_kmer']};"
-                    f"len={k}"                    
+                    f"len={k}"
                 )
                 f.write(
                     f"{sequence_id}\tTIR_finder\tTIR\t{left_tir_start}\t{left_tir_end}\t"
                     f".\t+\t.\t{left_tir_attrs}\n"
                 )
                 pbar.update(1)
-                
+
                 # Write right TIR
                 right_tir_attrs = (
                     f"ID={pair_id}_TIR_R;"
                     f"Parent={pair_id};"
                     f"mismatch_count={result['mismatch_count']};"
                     f"seq={result['right_kmer']};"
-                    f"len={k}" 
+                    f"len={k}"
                 )
                 f.write(
                     f"{sequence_id}\tTIR_finder\tTIR\t{right_tir_start}\t{right_tir_end}\t"
                     f".\t-\t.\t{right_tir_attrs}\n"
                 )
                 pbar.update(1)
-                
+
                 # Write left TSD if exists
                 if tsd_len > 0:
                     left_tsd_attrs = (
@@ -582,7 +583,7 @@ def write_gff(
                         f".\t+\t.\t{left_tsd_attrs}\n"
                     )
                     pbar.update(1)
-                    
+
                     # Write right TSD
                     right_tsd_attrs = (
                         f"ID={pair_id}_TSD_R;"
@@ -596,8 +597,9 @@ def write_gff(
                         f".\t+\t.\t{right_tsd_attrs}\n"
                     )
                     pbar.update(1)
-    
+
     print("Done writing GFF.")
+
 
 def main():
     """Main function to run the inverted repeat and TSD search"""
@@ -643,9 +645,6 @@ def main():
         if len(left_seq) < args.k or len(right_seq) < args.k:
             raise ValueError(f"Sequence blocks must be at least {args.k} bases long")
 
-        # Store right sequence length for coordinate correction
-        # right_seq_length = len(right_seq)
-
         # Find inverted repeats
         print("\nSearching for inverted repeats...")
         repeat_pairs = list(find_inverted_repeats(left_seq, right_seq, args.k, args.n))
@@ -667,49 +666,55 @@ def main():
             results, left_interval.start, right_interval.start, len(right_seq)
         )
 
+        print(f"\nTotal TIR pairs: {len(corrected_results)}")
+
         # Write results to file if output path is provided
         if args.output:
             write_results(corrected_results, args.output, len(right_seq))
-            print(f"\nResults written to: {args.output}")
-
-        print(f"\nTotal TIR pairs: {len(corrected_results)}")
 
         # Write GFF if requested
         if args.gff:
             # Get sequence ID from FASTA header
             sequence_id = sequences[0].id
-            
+
             # Convert results to dictionary format for GFF writing
             processed_results = []
             for result in corrected_results:
                 left_kmer, left_pos, right_kmer, right_pos, left_tsd, right_tsd = result
-                processed_results.append({
-                    'left_pos': left_pos,
-                    'right_pos': right_pos,
-                    'left_kmer': left_kmer,
-                    'right_kmer': right_kmer,
-                    'left_tsd': left_tsd,
-                    'right_tsd': right_tsd,
-                    'mismatch_count': calculate_hamming_distance(left_kmer, right_kmer),
-                    'tsd_mismatch_count': calculate_hamming_distance(left_tsd, right_tsd),
-                    'tsd_len': len(left_tsd)
-                })
-            
-            write_gff(processed_results, args.gff, args.k, sequence_id, args.left, args.right)
-            print(f"\nGFF written to: {args.gff}")
-        
-        # Print results to console
-        count = 0
-        for result in corrected_results:
-            left_kmer, left_pos, right_kmer, right_pos, left_tsd, right_tsd = result
+                processed_results.append(
+                    {
+                        "left_pos": left_pos,
+                        "right_pos": right_pos,
+                        "left_kmer": left_kmer,
+                        "right_kmer": right_kmer,
+                        "left_tsd": left_tsd,
+                        "right_tsd": right_tsd,
+                        "mismatch_count": calculate_hamming_distance(
+                            left_kmer, right_kmer
+                        ),
+                        "tsd_mismatch_count": calculate_hamming_distance(
+                            left_tsd, right_tsd
+                        ),
+                        "tsd_len": len(left_tsd),
+                    }
+                )
 
-            count += 1
-
-            print(
-                f"TIR #{count}:  {left_kmer}/{right_kmer} at positions {left_pos},{right_pos}"
+            write_gff(
+                processed_results, args.gff, args.k, sequence_id, args.left, args.right
             )
 
-            print(f"TSDs: {left_tsd}/{right_tsd} Length: {len(left_tsd)}")
+        # Print results to console
+        # count = 0
+        # for result in corrected_results:
+        #    left_kmer, left_pos, right_kmer, right_pos, left_tsd, right_tsd = result
+
+        #    count += 1
+
+        #    print(
+        #        f"TIR #{count}:  {left_kmer}/{right_kmer} at positions {left_pos},{right_pos}"
+        #    )
+
+        #    print(f"TSDs: {left_tsd}/{right_tsd} Length: {len(left_tsd)}")
 
     except (ValueError, FileNotFoundError) as e:
         print(f"Error: {str(e)}", file=sys.stderr)
