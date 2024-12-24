@@ -18,8 +18,8 @@ Caveats:
 
 *data/mintest.fa*
 ```
->tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50
-GGTCAGTAGTCCCGGATGATACTATCCATATGCCGGGACTTCAGTGCGC
+>test_seq   tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50
+GGTCAGTAGTCCCGGATGATACTATCCATATGCCGGGACTTCAGTGCGCA
 ```
 
 Example:
@@ -33,17 +33,18 @@ Output:
 ```
 left_pos	left_kmer	right_pos	right_kmer	mismatch_count	left_tsd	right_tsd	tsd_mismatch_count	tsd_len
 8	AGTCCCGG	40	AGTCCCGG	0	TCAGT	TCAGT	0	5
+
 ```
 
 *test_annotations.gff3*
 ```
 ##gff-version 3
-tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	search_region	1	21	.	.	.	ID=search_region_L;Name=Left_search_interval
-tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	search_region	33	50	.	.	.	ID=search_region_R;Name=Right_search_interval
-tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TIR	8	15	.	+	.	ID=TIR_pair_1_TIR_L;Parent=TIR_pair_1;mismatch_count=0;seq=AGTCCCGG;len=8
-tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TIR	33	40	.	-	.	ID=TIR_pair_1_TIR_R;Parent=TIR_pair_1;mismatch_count=0;seq=AGTCCCGG;len=8
-tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TSD	3	7	.	+	.	ID=TIR_pair_1_TSD_L;Parent=TIR_pair_1_TIR_L;mismatch_count=0;seq=TCAGT;len=5
-tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TSD	41	45	.	+	.	ID=TIR_pair_1_TSD_R;Parent=TIR_pair_1_TIR_R;mismatch_count=0;seq=TCAGT;len=5
+test_seq	TIR_finder	search_region	1	21	.	.	.	ID=search_region_L;Name=Left_search_interval
+test_seq	TIR_finder	search_region	33	50	.	.	.	ID=search_region_R;Name=Right_search_interval
+test_seq	TIR_finder	TIR	8	15	.	+	.	ID=TIR_pair_1_TIR_L;Parent=TIR_pair_1;mismatch_count=0;seq=AGTCCCGG;len=8
+test_seq	TIR_finder	TIR	33	40	.	-	.	ID=TIR_pair_1_TIR_R;Parent=TIR_pair_1;mismatch_count=0;seq=AGTCCCGG;len=8
+test_seq	TIR_finder	TSD	3	7	.	+	.	ID=TIR_pair_1_TSD_L;Parent=TIR_pair_1_TIR_L;mismatch_count=0;seq=TCAGT;len=5
+test_seq	TIR_finder	TSD	41	45	.	+	.	ID=TIR_pair_1_TSD_R;Parent=TIR_pair_1_TIR_R;mismatch_count=0;seq=TCAGT;len=5
 
 
 ```
