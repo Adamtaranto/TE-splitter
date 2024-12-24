@@ -25,13 +25,27 @@ GGTCAGTAGTCCCGGATGATACTATCCATATGCCGGGACTTCAGTGCGC
 Example:
 ```bash
 python tsd-tir-interval-finder.py --infile data/mintest.fa --left 1-21 --right 33-50 \
--k 8 -n 1 --max-tsd 6 --min-tsd 2 --tsd-mismatches 1 --output test_results.tsv
+-k 8 -n 0 --max-tsd 6 --min-tsd 2 --tsd-mismatches 1 --output test_results.tsv --gff test_annotations.gff3
 ```
 
 Output:
+*test_results.tsv*
 ```
 left_pos	left_kmer	right_pos	right_kmer	mismatch_count	left_tsd	right_tsd	tsd_mismatch_count	tsd_len
 8	AGTCCCGG	40	AGTCCCGG	0	TCAGT	TCAGT	0	5
+```
+
+*test_annotations.gff3*
+```
+##gff-version 3
+tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	search_region	1	21	.	.	.	ID=search_region_L;Name=Left_search_interval
+tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	search_region	33	50	.	.	.	ID=search_region_R;Name=Right_search_interval
+tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TIR	8	15	.	+	.	ID=TIR_pair_1_TIR_L;Parent=TIR_pair_1;mismatch_count=0;seq=AGTCCCGG;len=8
+tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TIR	33	40	.	-	.	ID=TIR_pair_1_TIR_R;Parent=TIR_pair_1;mismatch_count=0;seq=AGTCCCGG;len=8
+tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TSD	3	7	.	+	.	ID=TIR_pair_1_TSD_L;Parent=TIR_pair_1_TIR_L;mismatch_count=0;seq=TCAGT;len=5
+tsd_5_TCAGT_k8_AGTCCCGG_int_1-21_33-50	TIR_finder	TSD	41	45	.	+	.	ID=TIR_pair_1_TSD_R;Parent=TIR_pair_1_TIR_R;mismatch_count=0;seq=TCAGT;len=5
+
+
 ```
 
 Output coords are 1-based. Left_pos is begining of left TIR, right_pos is at the outer end of the right TIR (i.e. begining on reverse strand).
