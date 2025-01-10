@@ -18,7 +18,7 @@ def main():
         "--loglevel",
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Set logging level. Default: 'DEBUG'",
+        help="Set logging level. Default: 'INFO'",
     )
     tir_parser.add_argument(
         "-i",
