@@ -1,5 +1,5 @@
-from shlex import quote
 import logging
+from shlex import quote
 import subprocess
 import sys
 

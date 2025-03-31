@@ -1,6 +1,6 @@
 from tsplit.logs import init_logging
-from tsplit.utils import segWrite, tSplitchecks, check_tools
 from tsplit.parseAlign import getTIRs
+from tsplit.utils import check_tools, segWrite, tSplitchecks
 
 
 def main(args=None):

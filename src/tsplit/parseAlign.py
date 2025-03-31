@@ -1,14 +1,14 @@
-import os
 import logging
-import tempfile
+import os
 import shutil
+import tempfile
 
 from Bio import SeqIO
 from Bio.Align import PairwiseAligner
 from pymummer import coords_file, nucmer
 
-from tsplit.wrapping import run_cmd, makeBlast
 from tsplit.utils import cleanID
+from tsplit.wrapping import makeBlast, run_cmd
 
 
 def getTIRs(

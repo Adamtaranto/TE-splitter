@@ -1,7 +1,8 @@
 import argparse
 import sys
-from tsplit.cmd_TIR import main as tir_main
+
 from tsplit.cmd_LTR import main as ltr_main
+from tsplit.cmd_TIR import main as tir_main
 
 
 def main():
