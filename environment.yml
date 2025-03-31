@@ -9,6 +9,6 @@ dependencies:
   - pip
   - pip:
       - "biopython>=1.70"
-      - "pymummer>=0.10.3"
+      - "pymummer>=0.12.0"
       - pytest
       - hatch
