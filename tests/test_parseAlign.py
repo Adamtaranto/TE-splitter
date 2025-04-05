@@ -1,7 +1,9 @@
 import os
 import tempfile
+
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+
 from tsplit.parseAlign import filterCoordsFileTIR
 
 

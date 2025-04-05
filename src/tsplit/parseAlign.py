@@ -13,7 +13,7 @@ import logging
 import os
 import shutil
 import tempfile
-from typing import List, Generator, Optional
+from typing import Generator, List, Optional
 
 from Bio import SeqIO
 from Bio.Align import PairwiseAligner

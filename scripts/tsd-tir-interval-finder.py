@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from typing import Dict, List, Tuple, Generator, NamedTuple
 import argparse
 import sys
+from typing import Dict, Generator, List, NamedTuple, Tuple
 
 from Bio import SeqIO
 from Bio.Seq import Seq

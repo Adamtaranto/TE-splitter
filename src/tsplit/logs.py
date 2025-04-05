@@ -7,6 +7,7 @@ to create visually enhanced log messages.
 """
 
 import logging
+
 from rich.console import Console
 from rich.logging import RichHandler
 

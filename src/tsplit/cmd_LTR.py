@@ -14,7 +14,6 @@ sequences and identify terminal repeats that occur in the same orientation
 from argparse import Namespace
 from typing import Optional
 
-
 from tsplit.logs import init_logging
 from tsplit.parseAlign import getLTRs
 from tsplit.utils import check_tools, segWrite, tSplitchecks

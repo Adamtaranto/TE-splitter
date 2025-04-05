@@ -10,7 +10,7 @@ import os
 import re
 import shutil
 import sys
-from typing import List, Optional, Generator, Any
+from typing import Any, Generator, List, Optional
 
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord

@@ -15,7 +15,6 @@ synthetic Miniature Inverted-repeat Transposable Elements (MITEs).
 from argparse import Namespace
 from typing import Optional
 
-
 from tsplit.logs import init_logging
 from tsplit.parseAlign import getTIRs
 from tsplit.utils import check_tools, segWrite, tSplitchecks

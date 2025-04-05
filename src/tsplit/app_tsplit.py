@@ -12,8 +12,8 @@ The application supports two main commands:
 """
 
 import argparse
-import sys
 from argparse import Namespace
+import sys
 
 from tsplit.cmd_LTR import main as ltr_main
 from tsplit.cmd_TIR import main as tir_main
