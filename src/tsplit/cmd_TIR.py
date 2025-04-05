@@ -9,11 +9,11 @@ def main(args=None):
     init_logging(loglevel=args.loglevel)
 
     # Check for required programs.
-    required_tools = ["delta-filter", "nucmer", "show-coords"]
-    optional_tools = ["blastn"]
+    required_tools = ['delta-filter', 'nucmer', 'show-coords']
+    optional_tools = ['blastn']
 
-    if args.method == "blastn":
-        required_tools.append("blastn")
+    if args.method == 'blastn':
+        required_tools.append('blastn')
         optional_tools = []
 
     check_tools(required_tools=required_tools, optional_tools=optional_tools)

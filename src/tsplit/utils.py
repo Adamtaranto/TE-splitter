@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 import logging
 import os
 import re
@@ -8,7 +7,11 @@ import sys
 from Bio import SeqIO
 
 
-def check_tools(required_tools=[], optional_tools=[]):
+def check_tools(required_tools=None, optional_tools=None):
+    if required_tools is None:
+        required_tools = []
+    if optional_tools is None:
+        optional_tools = []
     """
     Check if required and optional tools are available on the system's PATH.
 
@@ -32,37 +35,37 @@ def check_tools(required_tools=[], optional_tools=[]):
         """
         tool_padded = tool.ljust(15)
         if path:
-            message = f"{color_code}{tool_padded}\t{path}\033[0m"
+            message = f'{color_code}{tool_padded}\t{path}\033[0m'
         else:
-            message = f"{color_code}{tool_padded}\tNOT FOUND\033[0m"
+            message = f'{color_code}{tool_padded}\tNOT FOUND\033[0m'
         print(message, file=sys.stderr)
 
     # Check required tools
-    logging.info("Checking for dependencies:")
+    logging.info('Checking for dependencies:')
     for tool in required_tools:
         path = shutil.which(tool)
         if path:
-            print_message(tool, path, "\033[92m")  # Green
+            print_message(tool, path, '\033[92m')  # Green
         else:
-            print_message(tool, None, "\033[91m")  # Red
+            print_message(tool, None, '\033[91m')  # Red
             missing_required_tools.append(tool)
 
     # Check optional tools
     for tool in optional_tools:
         path = shutil.which(tool)
         if path:
-            print_message(tool, path, "\033[92m")  # Green
+            print_message(tool, path, '\033[92m')  # Green
         else:
-            print_message(tool, None, "\033[93m")  # Yellow
+            print_message(tool, None, '\033[93m')  # Yellow
 
     # Raise error if any required tool is missing
     if missing_required_tools:
-        error_message = "ERROR: Some required tools could not be found: " + ", ".join(
+        error_message = 'ERROR: Some required tools could not be found: ' + ', '.join(
             missing_required_tools
         )
         logging.error(error_message)
         raise RuntimeError(
-            "Missing required tools: " + ", ".join(missing_required_tools)
+            'Missing required tools: ' + ', '.join(missing_required_tools)
         )
 
 
@@ -81,32 +84,32 @@ def tSplitchecks(args):
     """
     # Check if the input file exists
     if not os.path.isfile(args.infile):
-        logging.error("Input sequence file does not exist. Quitting.")
+        logging.error('Input sequence file does not exist. Quitting.')
         raise FileNotFoundError(f"Input sequence file '{args.infile}' does not exist.")
-    logging.info(f"Input file found: {args.infile}")
+    logging.info(f'Input file found: {args.infile}')
 
     # Determine the output directory
     if args.outdir:
         absOutDir = os.path.abspath(args.outdir)
         if not os.path.isdir(absOutDir):
             os.makedirs(absOutDir)
-            logging.info(f"Creating output directory: {absOutDir}")
+            logging.info(f'Creating output directory: {absOutDir}')
         outDir = absOutDir
     else:
         outDir = os.getcwd()
-    logging.debug(f"Set output directory: {outDir}")
+    logging.debug(f'Set output directory: {outDir}')
 
     # Set the prefix for output files
     if not args.prefix:
         prefix = os.path.splitext(os.path.basename(args.infile))[0]
     else:
         prefix = args.prefix
-    logging.debug(f"Set prefix: {prefix}")
+    logging.debug(f'Set prefix: {prefix}')
 
     # Create the output file path
-    outfile = prefix + "_tsplit_output.fasta"
+    outfile = prefix + '_tsplit_output.fasta'
     outpath = os.path.join(outDir, outfile)
-    logging.debug(f"Set outfile target: {outpath}")
+    logging.debug(f'Set outfile target: {outpath}')
 
     # Return the full path to the output file
     return outpath
@@ -117,8 +120,8 @@ def cleanID(s):
     Remove non alphanumeric characters from string.
     Replace whitespace with underscores.
     """
-    s = re.sub(r"[^\w\s]", "", s)
-    s = re.sub(r"\s+", "_", s)
+    s = re.sub(r'[^\w\s]', '', s)
+    s = re.sub(r'\s+', '_', s)
     return s
 
 
@@ -129,9 +132,9 @@ def segWrite(outfile, segs=None):
     """
     seqcount = 0
     if segs:
-        with open(outfile, "w") as handle:
+        with open(outfile, 'w') as handle:
             for seq in segs:
                 seqcount += 1
-                SeqIO.write(seq, handle, "fasta")
+                SeqIO.write(seq, handle, 'fasta')
         if seqcount == 0:
             os.remove(outfile)
