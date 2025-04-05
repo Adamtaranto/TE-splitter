@@ -8,9 +8,9 @@ Algo overview:
 
 - Extract all kmers from the left window and then searches for matches in the reverse complement of the right window within max 'n' mismatches.
 
-- Screen all pairs for direct repeats (posible Target Site Duplications) flanking the left and right TIRs. 
+- Screen all pairs for direct repeats (posible Target Site Duplications) flanking the left and right TIRs.
 
-Caveats: 
+Caveats:
 
 - This tool is not optimised for speed or large search regions.
 - Does not perform alignment of candidate TIRs (i.e. only tolerates mismatches, not gaps).
