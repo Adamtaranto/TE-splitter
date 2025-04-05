@@ -1,17 +1,44 @@
+"""
+Command-line interface for the TE-splitter package.
+
+This module provides the main entry point for the TE-splitter command-line tool.
+It sets up the argument parsing for both TIR (Terminal Inverted Repeats) and
+LTR (Long Terminal Repeats) functionality, and dispatches to the appropriate
+submodule based on user commands.
+
+The application supports two main commands:
+- tsplit TIR: For identifying Terminal Inverted Repeats in DNA transposons
+- tsplit LTR: For identifying Long Terminal Repeats in retrotransposons
+"""
+
 import argparse
 import sys
+from argparse import Namespace
 
 from tsplit.cmd_LTR import main as ltr_main
 from tsplit.cmd_TIR import main as tir_main
 
 
-def main():
+def parse_args() -> Namespace:
+    """
+    Parse command line arguments for the TE-splitter tool.
+
+    Sets up argument parsing for both TIR and LTR subcommands with
+    their respective options.
+
+    Returns
+    -------
+    Namespace
+        Parsed command-line arguments.
+    """
+    # Create the top-level parser with application description
     parser = argparse.ArgumentParser(
         description='Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs).'
     )
+    # Require a subcommand (TIR or LTR)
     subparsers = parser.add_subparsers(dest='command', required=True)
 
-    # TIR subcommand
+    # Set up parser for TIR subcommand
     tir_parser = subparsers.add_parser(
         'TIR', help='Extract terminal repeats from DNA transposons (TIRs).'
     )
@@ -99,7 +126,7 @@ def main():
         help='Select alignment method: "blastn" or "nucmer".(Default: blastn)',
     )
 
-    # LTR subcommand
+    # Set up parser for LTR subcommand
     ltr_parser = subparsers.add_parser(
         'LTR', help='Extract terminal repeats from retrotransposons (LTRs).'
     )
@@ -181,16 +208,42 @@ def main():
         help='Select alignment method: "blastn" or "nucmer".(Default: blastn)',
     )
 
-    args = parser.parse_args()
+    # Parse and return the command-line arguments
+    return parser.parse_args()
 
+
+def main(args: Namespace = None) -> None:
+    """
+    Execute the main TE-splitter command-line interface.
+
+    Dispatches to the appropriate subcommand handler (TIR or LTR)
+    based on the provided arguments.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments.
+
+    Returns
+    -------
+    None
+        This function does not return a value but may exit with
+        status code 1 if an invalid command is provided.
+    """
+    # Parse arguments if none were provided
+    if args is None:
+        args = parse_args()
+
+    # Dispatch to the appropriate subcommand handler
     if args.command == 'TIR':
         tir_main(args)
     elif args.command == 'LTR':
         ltr_main(args)
     else:
-        parser.print_help()
+        # Should not reach this due to required=True in subparsers
         sys.exit(1)
 
 
 if __name__ == '__main__':
-    main()
+    args = parse_args()
+    main(args)
