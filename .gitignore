@@ -1,6 +1,9 @@
 # Mac stuff
 .DS_Store
 
+# Development
+.ideas/
+
 # Versioning
 src/tsplit/_version.py
 
