@@ -6,7 +6,7 @@
 
 Extract terminal repeats from retrotransposons (LTRs) or DNA transposons (TIRs). Returns compontent segments of the element for use with transposon mapping tools.
 
-Optionally, `tsplit TIR` can also compose synthetic MITES from complete DNA transposons.  
+Optionally, `tsplit TIR` can also compose synthetic MITES from complete DNA transposons.
 
 ## Table of contents
 
@@ -26,7 +26,7 @@ tuneable heuristics to select an alignment pair most likely to represent an LTR 
   3. If `tsplit TIR`: Retain only alignment pairs on opposite strands (inverse repeats)
   4. Retain pairs for which the 5' match begins within x bases of element start
      and whose 3' match ends within x bases of element end
-  5. If multiple candidates remain select alignment pair with largest internal segment 
+  5. If multiple candidates remain select alignment pair with largest internal segment
   (i.e. closest to element ends)
 
 ## Options and usage
@@ -46,14 +46,14 @@ Installation options:
 pip install tsplit
 
 # Clone and install latest dev version from this repository:
-git clone https://github.com/Adamtaranto/TE-splitter.git && cd TE-splitter && pip install -e '.[dev]'
+git clone https://github.com/Adamtaranto/tSplit.git && cd tSplit && pip install -e '.[dev]'
 ```
 
-### Example usage  
+### Example usage
 
 tSplit can be run in two modes: `tsplit LTR` and `tsplit TIR`, for extracting long terminal repeats or terminal inverted repeats, respectively.
 
-Options are the same for each.  
+Options are the same for each.
 
 ### tsplit TIR
 
