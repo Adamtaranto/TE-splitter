@@ -1,10 +1,23 @@
+"""
+Transposable element alignment and feature extraction module.
+
+This module provides functionality for:
+1. Self-alignment of DNA sequences to identify terminal repeats
+2. Extraction of Terminal Inverted Repeats (TIRs) from DNA transposons
+3. Extraction of Long Terminal Repeats (LTRs) from retrotransposons
+4. Construction of synthetic Miniature Inverted-repeat Transposable Elements (MITEs)
+5. Filtering alignment results based on specific criteria for TEs
+"""
+
 import logging
 import os
 import shutil
 import tempfile
+from typing import List, Generator, Optional
 
 from Bio import SeqIO
 from Bio.Align import PairwiseAligner
+from Bio.SeqRecord import SeqRecord
 from pymummer import coords_file, nucmer
 
 from tsplit.utils import cleanID
@@ -12,39 +25,66 @@ from tsplit.wrapping import makeBlast, run_cmd
 
 
 def getTIRs(
-    fasta_file,
-    flankdist=10,
-    minid=80,
-    minterm=10,
-    minseed=5,
-    diagfactor=0.3,
-    mites=False,
-    report='split',
-    temp=None,
-    keeptemp=False,
-    alignTool='nucmer',
-    verbose=True,
-):
+    fasta_file: str,
+    flankdist: int = 10,
+    minid: float = 80,
+    minterm: int = 10,
+    minseed: int = 5,
+    diagfactor: float = 0.3,
+    mites: bool = False,
+    report: str = 'split',
+    temp: Optional[str] = None,
+    keeptemp: bool = False,
+    alignTool: str = 'nucmer',
+    verbose: bool = True,
+) -> Generator[SeqRecord, None, None]:
     """
     Align elements to self and attempt to identify TIRs.
-    Optionally attempt to construct synthetic MITEs from TIRs.
 
-    Args:
-        fasta_file (str): Path to the multifasta file containing sequence records.
-        flankdist (int): Maximum distance from element start for TIR candidates.
-        minid (float): Minimum identity between terminal repeat pairs.
-        minterm (int): Minimum length for a terminal repeat to be considered.
-        minseed (int): Minimum seed length for nucmer.
-        diagfactor (float): Diagonal factor for nucmer.
-        mites (bool): Whether to attempt to construct synthetic MITEs.
-        report (str): Reporting mode for TIRs.
-        temp (str): Path to the temporary directory.
-        keeptemp (bool): Whether to keep the temporary directory after processing.
-        alignTool (str): Alignment tool to use ('nucmer' or 'blastn').
-        verbose (bool): Whether to print verbose output.
+    Processes sequences to identify Terminal Inverted Repeats (TIRs)
+    by performing self-alignment. Can optionally construct synthetic
+    Miniature Inverted-repeat Transposable Elements (MITEs).
 
-    Yields:
-        SeqRecord: Segments of the sequence based on the reporting mode.
+    Parameters
+    ----------
+    fasta_file : str
+        Path to the multifasta file containing sequence records.
+    flankdist : int, optional
+        Maximum distance from element start for TIR candidates, by default 10.
+    minid : float, optional
+        Minimum identity between terminal repeat pairs, by default 80.
+    minterm : int, optional
+        Minimum length for a terminal repeat to be considered, by default 10.
+    minseed : int, optional
+        Minimum seed length for nucmer, by default 5.
+    diagfactor : float, optional
+        Diagonal factor for nucmer, by default 0.3.
+    mites : bool, optional
+        Whether to attempt to construct synthetic MITEs, by default False.
+    report : str, optional
+        Reporting mode for TIRs ('split', 'external', 'internal', 'all'), by default 'split'.
+    temp : str, optional
+        Path to the temporary directory, by default None.
+    keeptemp : bool, optional
+        Whether to keep the temporary directory after processing, by default False.
+    alignTool : str, optional
+        Alignment tool to use ('nucmer' or 'blastn'), by default 'nucmer'.
+    verbose : bool, optional
+        Whether to print verbose output, by default True.
+
+    Yields
+    ------
+    SeqRecord
+        Segments of the sequence based on the reporting mode:
+        - 'split': TIRs and internal regions separately
+        - 'external': Only TIRs
+        - 'internal': Only internal regions
+        - 'all': Original sequences plus all segments
+
+    Notes
+    -----
+    When mites=True, the function will also yield synthetic MITEs constructed by
+    joining the identified TIRs.
     """
     # Set temp directory to cwd if none is provided
     if not temp:
@@ -137,9 +177,21 @@ def getTIRs(
                     qry_start = alignments[0].qry_coords().start
                     qry_end = alignments[0].qry_coords().end
 
-                    if alignments[0].hit_length_ref != alignments[0].hit_length_qry:
+                    # hit_length_ref appears to be the length of the entire aligned ref seq including gaps.
+                    # hit_length_qry appears to be only the matching bases between the two TIRs.
+                    # if alignments[0].hit_length_ref != alignments[0].hit_length_qry:
+                    #    logging.warning(
+                    #        f'Length of TIRs do not match: {alignments[0].hit_length_ref}bp vs {alignments[0].hit_length_qry}bp \nref_coords: {alignments[0].ref_coords()} \nqry_coords: {alignments[0].qry_coords()} \nYou may want to inspect the alignment:'
+                    #    )
+                    # else:
+                    #    logging.info('Alignment of TIRs:')
+
+                    hit_length_ref = (ref_end + 1) - ref_start
+                    hit_length_qry = (qry_end + 1) - qry_start
+
+                    if hit_length_ref != hit_length_qry:
                         logging.warning(
-                            f'Length of TIRs do not match: {alignments[0].hit_length_ref}bp vs {alignments[0].hit_length_qry}bp \nref_coords: {alignments[0].ref_coords()} \nqry_coords: {alignments[0].qry_coords()} \nYou may want to inspect the alignment:'
+                            f'Length of TIRs do not match: {hit_length_ref}bp vs {hit_length_qry}bp \nref_coords: {alignments[0].ref_coords()} \nqry_coords: {alignments[0].qry_coords()} \nYou may want to inspect the alignment:'
                         )
                     else:
                         logging.info('Alignment of TIRs:')
@@ -219,7 +271,42 @@ def getTIRs(
             logging.info(f'Temporary directory retained: {tempDir}')
 
 
-def filterCoordsFileTIR(coordsFile, record, minterm=10, flankdist=10):
+def filterCoordsFileTIR(
+    coordsFile: str, record: SeqRecord, minterm: int = 10, flankdist: int = 10
+) -> List:
+    """
+    Filter alignment coordinates file for TIR candidates.
+
+    Processes alignment results to identify Terminal Inverted Repeats (TIRs)
+    based on position, orientation, and length criteria.
+
+    Parameters
+    ----------
+    coordsFile : str
+        Path to the coords file with alignment information.
+    record : SeqRecord
+        The sequence record being analyzed.
+    minterm : int, optional
+        Minimum length for a terminal repeat to be considered, by default 10.
+    flankdist : int, optional
+        Maximum distance from element boundaries for TIR candidates, by default 10.
+
+    Returns
+    -------
+    list
+        List of alignment objects that meet TIR criteria, sorted by
+        internal segment size (largest first).
+
+    Notes
+    -----
+    Filtering steps include:
+    1. Removing self-alignments
+    2. Keeping alignments meeting minimum length requirement
+    3. Keeping alignments on opposite strands (characteristic of TIRs)
+    4. Filtering for alignments near element boundaries
+    5. Filtering out overlapping alignments
+    6. Sorting by internal segment size
+    """
     # Import coords file to iterator object
     file_reader = coords_file.reader(coordsFile)
 
@@ -273,36 +360,57 @@ def filterCoordsFileTIR(coordsFile, record, minterm=10, flankdist=10):
 
 
 def getLTRs(
-    fasta_file,
-    flankdist=10,
-    minid=80,
-    minterm=10,
-    minseed=5,
-    diagfactor=0.3,
-    report='split',
-    temp=None,
-    keeptemp=False,
-    alignTool='nucmer',
-    verbose=True,
-):
+    fasta_file: str,
+    flankdist: int = 10,
+    minid: float = 80,
+    minterm: int = 10,
+    minseed: int = 5,
+    diagfactor: float = 0.3,
+    report: str = 'split',
+    temp: Optional[str] = None,
+    keeptemp: bool = False,
+    alignTool: str = 'nucmer',
+    verbose: bool = True,
+) -> Generator[SeqRecord, None, None]:
     """
     Align elements to self and attempt to identify LTRs.
 
-    Args:
-        fasta_file (str): Path to the multifasta file containing sequence records.
-        flankdist (int): Maximum distance from element start for LTR candidates.
-        minid (float): Minimum identity between terminal repeat pairs.
-        minterm (int): Minimum length for a terminal repeat to be considered.
-        minseed (int): Minimum seed length for nucmer.
-        diagfactor (float): Diagonal factor for nucmer.
-        report (str): Reporting mode for LTRs.
-        temp (str): Path to the temporary directory.
-        keeptemp (bool): Whether to keep the temporary directory after processing.
-        alignTool (str): Alignment tool to use ('nucmer' or 'blastn').
-        verbose (bool): Whether to print verbose output.
+    Processes sequences to identify Long Terminal Repeats (LTRs)
+    by performing self-alignment and filtering results.
 
-    Yields:
-        SeqRecord: Segments of the sequence based on the reporting mode.
+    Parameters
+    ----------
+    fasta_file : str
+        Path to the multifasta file containing sequence records.
+    flankdist : int, optional
+        Maximum distance from element start for LTR candidates, by default 10.
+    minid : float, optional
+        Minimum identity between terminal repeat pairs, by default 80.
+    minterm : int, optional
+        Minimum length for a terminal repeat to be considered, by default 10.
+    minseed : int, optional
+        Minimum seed length for nucmer, by default 5.
+    diagfactor : float, optional
+        Diagonal factor for nucmer, by default 0.3.
+    report : str, optional
+        Reporting mode for LTRs ('split', 'external', 'internal', 'all'), by default 'split'.
+    temp : str, optional
+        Path to the temporary directory, by default None.
+    keeptemp : bool, optional
+        Whether to keep the temporary directory after processing, by default False.
+    alignTool : str, optional
+        Alignment tool to use ('nucmer' or 'blastn'), by default 'nucmer'.
+    verbose : bool, optional
+        Whether to print verbose output, by default True.
+
+    Yields
+    ------
+    SeqRecord
+        Segments of the sequence based on the reporting mode:
+        - 'split': LTRs and internal regions separately
+        - 'external': Only LTRs
+        - 'internal': Only internal regions
+        - 'all': Original sequences plus all segments
     """
     # Set temp directory to cwd if none is provided
     if not temp:
@@ -449,7 +557,7 @@ def getLTRs(
         logging.info(f'Finished processing {len(seen_ids)} elements.')
 
         # Log number of elements with LTRs
-        logging.info(f'Found TIRs in {found_LTRs_count} elements.')
+        logging.info(f'Found LTRs in {found_LTRs_count} elements.')
 
         # Clean up the temporary directory if keeptemp is False
         if not keeptemp:
@@ -459,7 +567,42 @@ def getLTRs(
             logging.info(f'Temporary directory retained: {tempDir}')
 
 
-def filterCoordsFileLTR(coordsFile, record, minterm=10, flankdist=10):
+def filterCoordsFileLTR(
+    coordsFile: str, record: SeqRecord, minterm: int = 10, flankdist: int = 10
+) -> List:
+    """
+    Filter alignment coordinates file for LTR candidates.
+
+    Processes alignment results to identify Long Terminal Repeats (LTRs)
+    based on position, orientation, and length criteria.
+
+    Parameters
+    ----------
+    coordsFile : str
+        Path to the coords file with alignment information.
+    record : SeqRecord
+        The sequence record being analyzed.
+    minterm : int, optional
+        Minimum length for a terminal repeat to be considered, by default 10.
+    flankdist : int, optional
+        Maximum distance from element boundaries for LTR candidates, by default 10.
+
+    Returns
+    -------
+    list
+        List of alignment objects that meet LTR criteria, sorted by
+        internal segment size (largest first).
+
+    Notes
+    -----
+    Filtering steps include:
+    1. Removing self-alignments
+    2. Keeping alignments meeting minimum length requirement
+    3. Keeping alignments on the same strand (characteristic of LTRs)
+    4. Filtering for alignments near element boundaries
+    5. Filtering out overlapping alignments
+    6. Sorting by internal segment size
+    """
     # Import coords file to iterator object
     file_reader = coords_file.reader(coordsFile)
 
